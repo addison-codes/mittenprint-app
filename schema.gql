@@ -1,0 +1,123 @@
+directive @embedded on OBJECT
+
+directive @collection(name: String!) on OBJECT
+
+directive @index(name: String!) on FIELD_DEFINITION
+
+directive @resolver(
+  name: String
+  paginated: Boolean! = false
+) on FIELD_DEFINITION
+
+directive @relation(name: String) on FIELD_DEFINITION
+
+directive @unique(index: String) on FIELD_DEFINITION
+
+scalar Date
+
+# 'Location' input values
+input LocationInput {
+  locationName: String!
+  address: String!
+  city: String!
+  state: String!
+  zip: Int!
+  active: Boolean!
+}
+
+type Mutation {
+  # Create a new document in the collection of 'Location'
+  createLocation(
+    # 'Location' input values
+    data: LocationInput!
+  ): Location!
+
+  # Update an existing document in the collection of 'Location'
+  updateLocation(
+    # The 'Location' document's ID
+    id: ID!
+
+    # 'Location' input values
+    data: LocationInput!
+  ): Location
+
+  # Delete an existing document in the collection of 'Location'
+  deleteLocation(
+    # The 'Location' document's ID
+    id: ID!
+  ): Location
+
+  # Partially updates an existing document in the collection of 'Location'. It only modifies the values that are specified in the arguments. During execution, it verifies that required fields are not set to 'null'.
+  partialUpdateLocation(
+    # The 'Location' document's ID
+    id: ID!
+
+    # 'Location' input values
+    data: PartialUpdateLocationInput!
+  ): Location
+}
+
+# 'Location' input values
+input PartialUpdateLocationInput {
+  locationName: String
+  address: String
+  city: String
+  state: String
+  zip: Int
+  active: Boolean
+}
+
+scalar Time
+
+type Location {
+  city: String!
+  zip: Int!
+  state: String!
+
+  # The document's ID.
+  _id: ID!
+  address: String!
+  locationName: String!
+  active: Boolean!
+
+  # The document's timestamp.
+  _ts: Long!
+}
+
+# The pagination object for elements of type 'Location'.
+type LocationPage {
+  # The elements of type 'Location' in this page.
+  data: [Location]!
+
+  # A cursor for elements coming after the current page.
+  after: String
+
+  # A cursor for elements coming before the current page.
+  before: String
+}
+
+type Query {
+  # Find a document from the collection of 'Location' by its id.
+  findLocationByID(
+    # The 'Location' document's ID
+    id: ID!
+  ): Location
+  allLocations(
+    # The number of items to return per page.
+    _size: Int
+
+    # The pagination cursor.
+    _cursor: String
+  ): LocationPage!
+  locationsByActiveFlag(
+    # The number of items to return per page.
+    _size: Int
+
+    # The pagination cursor.
+    _cursor: String
+    active: Boolean!
+  ): LocationPage!
+}
+
+# The `Long` scalar type represents non-fractional signed whole numeric values. Long can represent values between -(2^63) and 2^63 - 1.
+scalar Long
