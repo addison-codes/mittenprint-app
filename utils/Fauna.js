@@ -21,10 +21,27 @@ const getLocations = async () => {
   return locations
 }
 
-const createLocation = async (locationName, address, city, state, zip) => {
+const createLocation = async (
+  locationName,
+  address,
+  city,
+  state,
+  zip,
+  placeId,
+  coordinates
+) => {
   return await faunaClient.query(
     q.Create(q.Collection('locations'), {
-      data: { locationName, address, city, state: 'MI', zip, active: true },
+      data: {
+        locationName,
+        address,
+        city,
+        state: 'MI',
+        zip,
+        placeId,
+        coordinates,
+        active: true,
+      },
     })
   )
 }

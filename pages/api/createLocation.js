@@ -1,6 +1,7 @@
 import { createLocation } from '../../utils/Fauna'
 export default async function handler(req, res) {
-  const { locationName, address, city, state, zip } = req.body
+  const { locationName, address, city, state, zip, placeId, coordinates } =
+    req.body
   if (req.method !== 'POST') {
     return res.status(405).json({ msg: 'Method not allowed' })
   }
@@ -10,7 +11,9 @@ export default async function handler(req, res) {
       address,
       city,
       state,
-      zip
+      zip,
+      placeId,
+      coordinates
     )
     return res.status(200).json(createdLocation)
   } catch (err) {
