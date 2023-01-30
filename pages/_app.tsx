@@ -13,7 +13,7 @@ function MyApp({ Component, pageProps }: AppProps) {
     >
       <MainLayout>
         <Component {...pageProps} />
-        </MainLayout>
+      </MainLayout>
     </Auth0Provider>
   )
 }

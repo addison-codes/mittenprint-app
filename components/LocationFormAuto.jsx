@@ -29,7 +29,6 @@ export default function LocationFormAuto() {
     const results = await geocodeByAddress(value)
     const latLng = await getLatLng(results[0])
     const [place] = await geocodeByPlaceId(placeId)
-    console.log(place)
     const name = suggestion?.formattedSuggestion?.mainText
     const { long_name: postalCode = '' } =
       place.address_components.find((c) => c.types.includes('postal_code')) ||

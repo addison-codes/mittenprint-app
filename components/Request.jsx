@@ -28,8 +28,6 @@ const Request = () => {
 
   const locsUrl = locs?.join('')
 
-  // console.log(locsUrl)
-
   const baseUrl =
     'https://wps.hereapi.com/v8/findsequence2?start=Pickup;42.5543306,-82.9290298'
 
@@ -37,8 +35,6 @@ const Request = () => {
     '&end=Home;42.973922,-85.6787294,19&improveFor=time&departure=2023-01-20T12:30:00%2b01:00&mode=fastest;car;&apiKey=Jp-LmPJsLs7nQQFlIB-a4HpTAx4okyPMVMhhpmSgFzs'
 
   const fullUrl = baseUrl + locsUrl + endUrl
-
-  // console.log(fullUrl)
 
   return <div>{fullUrl}</div>
 }

@@ -14,11 +14,52 @@ const getLocations = async () => {
   )
   const locations = data.map((location) => {
     location.id = location.ref.id
+    location.data.id = location.id
     delete location.ref
     return location.data
   })
-  console.log('test', locations)
   return locations
+}
+
+const getLocationsByPublication = async (id) => {
+  const { data } = await faunaClient.query(
+    q.Map(
+      q.Paginate(q.Match(q.Index('locationsByPublication'), id)),
+      q.Lambda('ref', q.Get(q.Var('ref')))
+    )
+  )
+  const locations = data.map((location) => {
+    location.id = location.ref.id
+    location.data.id = location.id
+    delete location.ref
+    return location.data
+  })
+  return locations
+}
+
+const getPublications = async () => {
+  const { data } = await faunaClient.query(
+    q.Map(
+      q.Paginate(q.Documents(q.Collection('publications'))),
+      q.Lambda('ref', q.Get(q.Var('ref')))
+    )
+  )
+  const publications = data.map((publication) => {
+    publication.id = publication.ref.id
+    publication.data.id = publication.id
+    delete publication.ref
+    return publication.data
+  })
+  return publications
+}
+
+const getPublicationById = async (id) => {
+  const publication = await faunaClient.query(
+    q.Get(q.Ref(q.Collection('publications'), id))
+  )
+  publication.id = publication.ref.id
+  delete publication.ref
+  return publication
 }
 
 const createLocation = async (
@@ -46,7 +87,22 @@ const createLocation = async (
   )
 }
 
+const createPublication = async (publicationName) => {
+  return await faunaClient.query(
+    q.Create(q.Collection('publications'), {
+      data: {
+        publicationName,
+        active: true,
+      },
+    })
+  )
+}
+
 module.exports = {
   getLocations,
+  getPublications,
+  getPublicationById,
   createLocation,
+  createPublication,
+  getLocationsByPublication,
 }

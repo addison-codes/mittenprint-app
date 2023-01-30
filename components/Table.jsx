@@ -1,4 +1,5 @@
 import useSWR from 'swr'
+import Link from 'next/link'
 import { useState, useMemo, useEffect } from 'react'
 import {
   ColumnDef,
@@ -12,27 +13,48 @@ import {
   onChangeFn,
 } from '@tanstack/react-table'
 
-const Table = ({ range }) => {
+const Table = ({ range, id, publication }) => {
   const [sorting, setSorting] = useState([])
   const [queryParams, setQueryParams] = useState('')
 
   const fetcher = (url, queryParams = '?limit=100') =>
     fetch(`${url}${queryParams}`).then((res) => res.json())
   const { data, error, mutate } = useSWR(
-    ['/api/locations', queryParams],
+    [
+      publication
+        ? '/api/publications'
+        : id
+        ? `/api/locations/${id}`
+        : '/api/locations',
+      queryParams,
+    ],
     fetcher
   )
-  console.log(data)
+
   useEffect(() => {
     if (range == 'global') {
       setQueryParams('')
     }
   }, [])
+
   const columns = useMemo(() => [
     {
-      accessorKey: 'locationName',
+      accessorKey: `${publication ? 'publicationName' : 'locationName'}`,
       header: () => 'Name',
-      cell: (info) => info.renderValue(),
+      // cell: (info) => info.renderValue(),
+      cell: ({ row }) => (
+        <Link
+          href={`${
+            publication
+              ? `/publications/${row.original.id}`
+              : `/locations/${row.original.id}`
+          }`}
+        >
+          {publication
+            ? row.original.publicationName
+            : row.original.locationName}
+        </Link>
+      ),
     },
     {
       accessorKey: 'address',
@@ -65,7 +87,7 @@ const Table = ({ range }) => {
   if (error)
     return (
       <div className="h-screen m-8 text-4xl text-center text-red-200">
-        Failed to load leaderboard: {error.message}
+        Failed to load data: {error.message}
       </div>
     )
   if (!data)
@@ -194,18 +216,18 @@ const Table = ({ range }) => {
             {table.getPageCount()}
           </strong>
         </span>
-        {/* <select
-            value={table.getState().pagination.pageSize}
-            onChange={(e) => {
-              table.setPageSize(Number(e.target.value))
-            }}
-          >
-            {[10, 20, 30, 40, 50].map((pageSize) => (
-              <option key={pageSize} value={pageSize}>
-                Show {pageSize}
-              </option>
-            ))}
-          </select> */}
+        <select
+          value={table.getState().pagination.pageSize}
+          onChange={(e) => {
+            table.setPageSize(Number(e.target.value))
+          }}
+        >
+          {[10, 20, 30, 40, 50].map((pageSize) => (
+            <option key={pageSize} value={pageSize}>
+              Show {pageSize}
+            </option>
+          ))}
+        </select>
       </div>
     </div>
   )
