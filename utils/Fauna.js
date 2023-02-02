@@ -62,6 +62,15 @@ const getPublicationById = async (id) => {
   return publication
 }
 
+const getLocationById = async (id) => {
+  const location = await faunaClient.query(
+    q.Get(q.Ref(q.Collection('locations'), id))
+  )
+  location.id = location.ref.id
+  delete location.ref
+  return location
+}
+
 const createLocation = async (
   locationName,
   address,
@@ -87,6 +96,33 @@ const createLocation = async (
   )
 }
 
+const updateLocation = async (
+  id,
+  locationName,
+  address,
+  city,
+  state,
+  zip,
+  placeId,
+  coordinates,
+  publications
+) => {
+  return await faunaClient.query(
+    q.Update(q.Ref(q.Collection('locations'), id), {
+      data: {
+        locationName,
+        address,
+        city,
+        state,
+        zip,
+        placeId,
+        coordinates,
+        publications,
+      },
+    })
+  )
+}
+
 const createPublication = async (publicationName) => {
   return await faunaClient.query(
     q.Create(q.Collection('publications'), {
@@ -102,6 +138,8 @@ module.exports = {
   getLocations,
   getPublications,
   getPublicationById,
+  getLocationById,
+  updateLocation,
   createLocation,
   createPublication,
   getLocationsByPublication,

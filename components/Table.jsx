@@ -24,7 +24,7 @@ const Table = ({ range, id, publication }) => {
       publication
         ? '/api/publications'
         : id
-        ? `/api/locations/${id}`
+        ? `/api/publications/locations/${id}`
         : '/api/locations',
       queryParams,
     ],

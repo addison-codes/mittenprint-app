@@ -1,70 +1,90 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { useForm } from 'react-hook-form'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
-import GooglePlacesAutocomplete, {
-  geocodeByAddress,
-} from 'react-google-places-autocomplete'
+import useSWR from 'swr'
 
 export default function LocationForm({ location }) {
-  const [value, setValue] = useState([])
+  const fetcher = (url, queryParams = '?limit=100') =>
+    fetch(`${url}${queryParams}`).then((res) => res.json())
+
+  const { data, error, mutate } = useSWR(`/api/publications`, fetcher)
+
+  const publications = data
 
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm({
-    // defaultValues: {
-    //   locationName: location ? location.data.locationName : '',
-    //   address: location ? location.data.address : '',
-    //   city: location ? location.data.city : '',
-    //   name: location ? location.data.name : '',
-    //   zip: location ? location.data.zip : '',
-    // },
+    defaultValues: {
+      locationName: location ? location.locationName : '',
+      address: location ? location.address : '',
+      city: location ? location.city : '',
+      state: location ? location.state : '',
+      zip: location ? location.zip : '',
+      id: location ? location.id : '',
+      publications: location ? location.publications : '',
+    },
   })
   const router = useRouter()
 
-  const createSnippet = async (data) => {
-    const { locationName, address, city, zip } = data
+  const handleCheck = async (e) => {
+    e.target.checked
+      ? location.publications.push({
+          id: e.target.id,
+          qty: 25,
+        })
+      : location.publications.splice(
+          location.publications.findIndex((a) => a.id === e.target.id),
+          1
+        )
+  }
+
+  // const createSnippet = async (data) => {
+  //   const { locationName, address, city, zip } = data
+  //   try {
+  //     await fetch('api/createLocation', {
+  //       method: 'POST',
+  //       body: JSON.stringify({ locationName, address, city, zip }),
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //     })
+  //     router.reload()
+  //   } catch (err) {
+  //     console.error(err)
+  //   }
+  // }
+
+  const updateLocation = async (data) => {
+    const { id, publications } = location
+    const { locationName, address, city, state, zip } = data
     try {
-      await fetch('api/createLocation', {
-        method: 'POST',
-        body: JSON.stringify({ locationName, address, city, zip }),
+      await fetch('/api/locations/update', {
+        method: 'PUT',
+        body: JSON.stringify({
+          locationName,
+          address,
+          city,
+          state,
+          zip,
+          id,
+          publications,
+        }),
         headers: {
           'Content-Type': 'application/json',
         },
       })
-      router.reload()
+      // router.push('/')
     } catch (err) {
       console.error(err)
     }
   }
 
-  // const updateSnippet = async (data) => {
-  //     const { locationName, address, city, name, zip } = data;
-  //     const id = snippet.id;
-  //     try {
-  //         await fetch('api/updateSnippet', {
-  //             method: 'PUT',
-  //             body: JSON.stringify({ locationName, address, city, name, zip, id}),
-  //             headers: {
-  //                 'Content-Type': 'application/json'
-  //             },
-  //         })
-  //         router.push('/');
-  //     } catch (err) {
-  //         console.error(err);
-  //     }
-  // };
-
   return (
     <div>
-      <form onSubmit={handleSubmit(createSnippet)}>
-        <GooglePlacesAutocomplete
-          apiKey="AIzaSyDLYwDTeQoptjd9E1AxaHoUrHujcRyo_a4"
-          selectProps={{ value, onChange: setValue }}
-        />
-        {/* {console.log(value.value.place_id)} */}
+      <form onSubmit={handleSubmit(updateLocation)}>
         <div className="mb-4">
           <label className="block mb-1 text-sm font-bold text-red-800">
             Location Name
@@ -73,7 +93,7 @@ export default function LocationForm({ location }) {
             {...register('locationName', { required: 'Name is required' })}
             aria-invalid={errors.location ? 'true' : 'false'}
             type="text"
-            className="w-full px-3 py-2 text-gray-700 bg-white border rounded outline-none"
+            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
           />
           {errors.locationName && (
             <p className="font-bold text-red-900">
@@ -89,7 +109,7 @@ export default function LocationForm({ location }) {
             {...register('address', { required: 'Address is required' })}
             aria-invalid={errors.location ? 'true' : 'false'}
             type="text"
-            className="w-full px-3 py-2 text-gray-700 bg-white border rounded outline-none"
+            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
           />
           {errors.address && (
             <p className="font-bold text-red-900">{errors.address?.message}</p>
@@ -103,26 +123,26 @@ export default function LocationForm({ location }) {
             {...register('city', { required: 'City is required' })}
             aria-invalid={errors.location ? 'true' : 'false'}
             type="text"
-            className="w-full px-3 py-2 text-gray-700 bg-white border rounded outline-none"
+            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
           />
           {errors.city && (
             <p className="font-bold text-red-900">{errors.city?.message}</p>
           )}
         </div>
-        {/* <div className="mb-4">
-        <label className="block mb-1 text-sm font-bold text-red-800">
-          State
-        </label>
-        <input
-          {...register('state', { required: 'State is required' })}
-          aria-invalid={errors.location ? 'true' : 'false'}
-          type="text"
-          className="w-full px-3 py-2 text-gray-700 bg-white border rounded outline-none"
-        />
-        {errors.state && (
-          <p className="font-bold text-red-900">{errors.state?.message}</p>
-        )}
-      </div> */}
+        <div className="mb-4">
+          <label className="block mb-1 text-sm font-bold text-red-800">
+            State
+          </label>
+          <input
+            {...register('state', { required: 'State is required' })}
+            aria-invalid={errors.location ? 'true' : 'false'}
+            type="text"
+            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+          />
+          {errors.state && (
+            <p className="font-bold text-red-900">{errors.state?.message}</p>
+          )}
+        </div>
         <div className="mb-4">
           <label className="block mb-1 text-sm font-bold text-red-800">
             Zip Code
@@ -131,11 +151,71 @@ export default function LocationForm({ location }) {
             {...register('zip', { required: 'Zip Code is required' })}
             aria-invalid={errors.location ? 'true' : 'false'}
             type="text"
-            className="w-full px-3 py-2 text-gray-700 bg-white border rounded outline-none"
+            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
           />
           {errors.zip && (
             <p className="font-bold text-red-900">{errors.zip?.message}</p>
           )}
+        </div>
+        <div className="mb-4">
+          <label className="block mb-1 text-sm font-bold text-red-800">
+            Publications
+          </label>
+          <ul className="w-48 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+            {/* Map through publications to add them to the selection box */}
+            {publications?.map((publication) => {
+              let checked = true
+              location.publications
+                ? location.publications.forEach((e) => {
+                    e.id === publication.id
+                      ? (checked = true)
+                      : (checked = false)
+                  })
+                : (checked = false)
+              return (
+                <li
+                  key={publication.id}
+                  className="w-full border-b border-gray-200 rounded-t-lg dark:border-gray-600"
+                >
+                  <div className="flex items-center pl-3">
+                    <input
+                      id={publication.id}
+                      defaultChecked={checked ? 'checked' : ''}
+                      {...register('publications')}
+                      type="checkbox"
+                      value={publication}
+                      onChange={handleCheck}
+                      className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
+                    />
+                    <label
+                      htmlFor={publication.id}
+                      className="w-full py-3 ml-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                    >
+                      {publication.publicationName}
+                    </label>
+                  </div>
+                </li>
+              )
+            })}
+          </ul>
+
+          {/* <select
+            multiple
+            {...register('publications')}
+            aria-invalid={errors.location ? 'true' : 'false'}
+            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+          >
+            {publications.map((publication) => (
+              <option key={publication.id} value={publication.id}>
+                {publication.publicationName}
+              </option>
+            ))}
+          </select>
+          {errors.publications && (
+            <p className="font-bold text-red-900">
+              {errors.publications?.message}
+            </p>
+          )} */}
         </div>
         <button
           className="px-4 py-2 mr-2 font-bold text-white bg-red-800 rounded hover:bg-red-900 focus:outline-none focus:shadow-outline"

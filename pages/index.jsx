@@ -15,7 +15,7 @@ const Home = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className="w-2/3 mx-auto mt-10">
+      <main className="mx-auto mt-10">
         <Button label="Add Location" link="/new-location" />
         <Title text={'All Publications'} />
         <Table publication />
@@ -23,10 +23,9 @@ const Home = () => {
         <Title text={'All Locations'} />
         <Table />
       </main>
-
-      <footer></footer>
     </div>
   )
 }
 
 export default Home
+
