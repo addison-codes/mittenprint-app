@@ -8,7 +8,7 @@ const q = faunadb.query
 const getLocations = async () => {
   const { data } = await faunaClient.query(
     q.Map(
-      q.Paginate(q.Documents(q.Collection('locations'))),
+      q.Paginate(q.Documents(q.Collection('locations')), { size: 200 }),
       q.Lambda('ref', q.Get(q.Var('ref')))
     )
   )
