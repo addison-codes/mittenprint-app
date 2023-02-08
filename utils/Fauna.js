@@ -78,7 +78,8 @@ const createLocation = async (
   state,
   zip,
   placeId,
-  coordinates
+  coordinates,
+  publications
 ) => {
   return await faunaClient.query(
     q.Create(q.Collection('locations'), {
@@ -91,6 +92,7 @@ const createLocation = async (
         placeId,
         coordinates,
         active: true,
+        publications,
       },
     })
   )

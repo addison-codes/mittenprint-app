@@ -1,6 +1,9 @@
 import useSWR from 'swr'
 import Link from 'next/link'
 import { useState, useMemo, useEffect } from 'react'
+import { getPublicationById } from '/utils/Fauna'
+import { IdToName } from '/utils/IdToName'
+
 import {
   ColumnDef,
   flexRender,
@@ -10,12 +13,16 @@ import {
   useReactTable,
   PaginationState,
   getPaginationRowModel,
+  enableMultiRowSelection,
   onChangeFn,
 } from '@tanstack/react-table'
+import IndeterminateCheckbox from './IndeterminateCheckbox'
+import Button from './Button'
 
 const Table = ({ range, id, publication }) => {
   const [sorting, setSorting] = useState([])
   const [queryParams, setQueryParams] = useState('')
+  const [rowSelection, setRowSelection] = useState({})
 
   const fetcher = (url, queryParams = '?limit=100') =>
     fetch(`${url}${queryParams}`).then((res) => res.json())
@@ -37,51 +44,143 @@ const Table = ({ range, id, publication }) => {
     }
   }, [])
 
-  const columns = useMemo(() => [
-    {
-      accessorKey: `${publication ? 'publicationName' : 'locationName'}`,
-      header: () => 'Name',
-      // cell: (info) => info.renderValue(),
-      cell: ({ row }) => (
-        <Link
-          href={`${
-            publication
-              ? `/publications/${row.original.id}`
-              : `/locations/${row.original.id}`
-          }`}
-        >
-          {publication
-            ? row.original.publicationName
-            : row.original.locationName}
-        </Link>
-      ),
-    },
-    {
-      accessorKey: 'address',
-      header: () => 'Address',
-      cell: (info) => info.renderValue(),
-    },
-    {
-      accessorKey: 'city',
-      header: () => 'City',
-      cell: (info) => info.renderValue(),
-    },
-    {
-      accessorKey: 'zip',
-      header: () => 'Zip Code',
-      cell: (info) => info.renderValue(),
-    },
-  ])
+  const columns = useMemo(() =>
+    publication
+      ? [
+          {
+            id: 'select',
+            header: ({ table }) => (
+              <IndeterminateCheckbox
+                {...{
+                  checked: table.getIsAllRowsSelected(),
+                  indeterminate: table.getIsSomeRowsSelected(),
+                  onChange: table.getToggleAllRowsSelectedHandler(),
+                }}
+              />
+            ),
+            cell: ({ row }) => (
+              <IndeterminateCheckbox
+                {...{
+                  checked: row.getIsSelected(),
+                  disabled: !row.getCanSelect(),
+                  indeterminate: row.getIsSomeSelected(),
+                  onChange: row.getToggleSelectedHandler(),
+                }}
+              />
+            ),
+          },
+          {
+            accessorKey: `${publication ? 'publicationName' : 'locationName'}`,
+            header: () => 'Name',
+            // cell: (info) => info.renderValue(),
+            cell: ({ row }) => (
+              <Link
+                href={`${
+                  publication
+                    ? `/publications/${row.original.id}`
+                    : `/locations/${row.original.id}`
+                }`}
+              >
+                {publication
+                  ? row.original.publicationName
+                  : row.original.locationName}
+              </Link>
+            ),
+          },
+        ]
+      : [
+          {
+            id: 'select',
+            header: ({ table }) => (
+              <IndeterminateCheckbox
+                {...{
+                  checked: table.getIsAllRowsSelected(),
+                  indeterminate: table.getIsSomeRowsSelected(),
+                  onChange: table.getToggleAllRowsSelectedHandler(),
+                }}
+              />
+            ),
+            cell: ({ row }) => (
+              <IndeterminateCheckbox
+                {...{
+                  checked: row.getIsSelected(),
+                  disabled: !row.getCanSelect(),
+                  indeterminate: row.getIsSomeSelected(),
+                  onChange: row.getToggleSelectedHandler(),
+                }}
+              />
+            ),
+          },
+          {
+            accessorKey: `${publication ? 'publicationName' : 'locationName'}`,
+            header: () => 'Name',
+            // cell: (info) => info.renderValue(),
+            cell: ({ row }) => (
+              <Link
+                href={`${
+                  publication
+                    ? `/publications/${row.original.id}`
+                    : `/locations/${row.original.id}`
+                }`}
+              >
+                {publication
+                  ? row.original.publicationName
+                  : row.original.locationName}
+              </Link>
+            ),
+          },
+          {
+            accessorKey: 'address',
+            header: () => 'Address',
+            cell: (info) => info.renderValue(),
+          },
+          {
+            accessorKey: 'city',
+            header: () => 'City',
+            cell: (info) => info.renderValue(),
+          },
+          {
+            accessorKey: 'zip',
+            header: () => 'Zip Code',
+            cell: (info) => info.renderValue(),
+          },
+          {
+            accessorKey: 'publications',
+            header: () => 'Publications',
+            cell: ({ row }) => {
+              return row.original.publications.map((e) => {
+                const list = ''
+                console.log(IdToName(e.id))
+                list += IdToName(e.id) + ' '
+                console.log(list)
+                return (
+                  <span
+                    key={list}
+                    className="bg-blue-100 text-blue-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-blue-400 border border-blue-400"
+                  >
+                    {list}
+                  </span>
+                )
+              })
+            },
+          },
+        ]
+  )
+
   const table = useReactTable({
     data,
     columns,
     state: {
       sorting,
+      rowSelection,
     },
+    enableMultiRowSelection,
+    initialState: { pagination: { pageSize: 30 } },
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    onRowSelectionChange: setRowSelection,
     debugTable: true,
   })
   if (error)
@@ -222,13 +321,29 @@ const Table = ({ range, id, publication }) => {
             table.setPageSize(Number(e.target.value))
           }}
         >
-          {[10, 20, 30, 40, 50].map((pageSize) => (
+          {[30, 50, 100, 200].map((pageSize) => (
             <option key={pageSize} value={pageSize}>
               Show {pageSize}
             </option>
           ))}
         </select>
       </div>
+      <div>
+        {Object.keys(rowSelection).length} of{' '}
+        {table.getPreFilteredRowModel().rows.length} Total Rows Selected
+      </div>
+      {/* <button
+        type="button"
+        className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
+        onClick={() => {
+          const selected = table.getSelectedRowModel().flatRows
+          selected.map((selection) => {
+            console.log(selected)
+          })
+        }}
+      >
+        Log Selected
+      </button> */}
     </div>
   )
 }
