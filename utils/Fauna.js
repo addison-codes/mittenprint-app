@@ -24,7 +24,7 @@ const getLocations = async () => {
 const getLocationsByPublication = async (id) => {
   const { data } = await faunaClient.query(
     q.Map(
-      q.Paginate(q.Match(q.Index('locationsByPublication'), id)),
+      q.Paginate(q.Match(q.Index('locationsByPublication'), id), { size: 200 }),
       q.Lambda('ref', q.Get(q.Var('ref')))
     )
   )

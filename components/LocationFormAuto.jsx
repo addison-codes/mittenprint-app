@@ -7,6 +7,7 @@ import PlacesAutocomplete, {
   getLatLng,
   geocodeByPlaceId,
 } from 'react-places-autocomplete'
+import useSWR from 'swr'
 
 export default function LocationFormAuto() {
   const [location, setLocation] = useState('')
@@ -21,9 +22,12 @@ export default function LocationFormAuto() {
   const [inputs, setInputs] = useState([])
   const [placeId, setPlaceId] = useState([])
 
-  useEffect(() => {
-    setInputs(document.querySelectorAll('input'))
-  }, [])
+  const fetcher = (url, queryParams = '?limit=100') =>
+    fetch(`${url}${queryParams}`).then((res) => res.json())
+
+  const { data, error, mutate } = useSWR(`/api/publications`, fetcher)
+
+  const publications = data
 
   const handleSelect = async (value, placeId, suggestion) => {
     const results = await geocodeByAddress(value)
@@ -48,8 +52,6 @@ export default function LocationFormAuto() {
     setCity(city)
     setLocation(value)
     setPlaceId(placeId)
-
-    inputs.forEach((e) => e.dispatchEvent(new Event('click')))
   }
 
   const {
@@ -67,8 +69,17 @@ export default function LocationFormAuto() {
   })
   const router = useRouter()
 
+  const assignedPublications = [
+    {
+      id: router.query.publication,
+      qty: 25,
+    },
+  ]
+
   const createSnippet = async (data) => {
-    const { locationName, address, city, zip, coordinates, placeId } = data
+    // const { locationName, address, city, zip, coordinates, placeId } = data
+    const publications = assignedPublications
+    const locationName = name
     try {
       await fetch('api/createLocation', {
         method: 'POST',
@@ -79,6 +90,7 @@ export default function LocationFormAuto() {
           zip,
           coordinates,
           placeId,
+          publications,
         }),
         headers: {
           'Content-Type': 'application/json',
@@ -90,6 +102,19 @@ export default function LocationFormAuto() {
     }
   }
 
+  const handleCheck = async (e) => {
+    e.target.checked
+      ? !assignedPublications
+        ? (assignedPublications = [{ id: e.target.id, qty: 25 }])
+        : assignedPublications.push({
+            id: e.target.id,
+            qty: 25,
+          })
+      : assignedPublications.splice(
+          assignedPublications.findIndex((a) => a.id === e.target.id),
+          1
+        )
+  }
   // const updateSnippet = async (data) => {
   //     const { locationName, address, city, name, zip } = data;
   //     const id = snippet.id;
@@ -126,9 +151,6 @@ export default function LocationFormAuto() {
               loading,
             }) => (
               <div>
-                <p>Latitude: {coordinates.lat}</p>
-                <p>Longitude: {coordinates.lng}</p>
-
                 <input
                   className="w-full px-3 py-2 text-gray-700 bg-white border rounded outline-none"
                   {...getInputProps({
@@ -145,7 +167,10 @@ export default function LocationFormAuto() {
                       backgroundColor: suggestion.active ? '#41b6e6' : '#000',
                     }
                     return (
-                      <div {...getSuggestionItemProps(suggestion, { style })}>
+                      <div
+                        key={suggestion.description}
+                        {...getSuggestionItemProps(suggestion, { style })}
+                      >
                         {suggestion.description}
                       </div>
                     )
@@ -160,8 +185,6 @@ export default function LocationFormAuto() {
             Location Name
           </label>
           <input
-            {...register('locationName', { required: 'Name is required' })}
-            aria-invalid={errors.location ? 'true' : 'false'}
             type="text"
             className="w-full px-3 py-2 text-gray-700 bg-white border rounded outline-none"
             value={name ?? 'Waiting'}
@@ -177,8 +200,6 @@ export default function LocationFormAuto() {
             Address
           </label>
           <input
-            {...register('address', { required: 'Address is required' })}
-            aria-invalid={errors.location ? 'true' : 'false'}
             type="text"
             className="w-full px-3 py-2 text-gray-700 bg-white border rounded outline-none"
             value={address ?? 'Waiting'}
@@ -192,8 +213,6 @@ export default function LocationFormAuto() {
             City
           </label>
           <input
-            {...register('city', { required: 'City is required' })}
-            aria-invalid={errors.location ? 'true' : 'false'}
             type="text"
             className="w-full px-3 py-2 text-gray-700 bg-white border rounded outline-none"
             value={city ?? 'Waiting'}
@@ -221,8 +240,6 @@ export default function LocationFormAuto() {
             Zip Code
           </label>
           <input
-            {...register('zip', { required: 'Zip Code is required' })}
-            aria-invalid={errors.location ? 'true' : 'false'}
             type="text"
             className="w-full px-3 py-2 text-gray-700 bg-white border rounded outline-none"
             value={zip ?? 'Waiting'}
@@ -231,7 +248,7 @@ export default function LocationFormAuto() {
             <p className="font-bold text-red-900">{errors.zip?.message}</p>
           )}
         </div>
-        <div className="mb-4">
+        {/* <div className="mb-4">
           <label className="block mb-1 text-sm font-bold text-red-800">
             Place ID
           </label>
@@ -253,7 +270,54 @@ export default function LocationFormAuto() {
             className="w-full px-3 py-2 text-gray-700 bg-white border rounded outline-none"
             value={coordinates.lat + ',' + coordinates.lng ?? 'Waiting'}
           />
+        </div> */}
+        <div className="mb-4">
+          <label className="block mb-1 text-sm font-bold text-red-800">
+            Publications
+          </label>
+          <ul className="w-48 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+            {/* Map through all publications to see if their id matches this location's assigned publications */}
+            {publications?.map((publication) => {
+              let checked = false
+              {
+                /* If the location has publications assigned we check the id against the current publication, if it is a match we set checked = true  */
+              }
+
+              assignedPublications
+                ? assignedPublications.find((e) => e.id === publication.id)
+                  ? (checked = true)
+                  : (checked = false)
+                : publication.id === router.query.publication
+                ? (checked = true)
+                : (checked = false)
+
+              return (
+                <li
+                  key={publication.id}
+                  className="w-full border-b border-gray-200 rounded-t-lg dark:border-gray-600"
+                >
+                  <div className="flex items-center pl-3">
+                    <input
+                      id={publication.id}
+                      defaultChecked={checked}
+                      type="checkbox"
+                      value={publication}
+                      onChange={handleCheck}
+                      className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
+                    />
+                    <label
+                      htmlFor={publication.id}
+                      className="w-full py-3 ml-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                    >
+                      {publication.publicationName}
+                    </label>
+                  </div>
+                </li>
+              )
+            })}
+          </ul>
         </div>
+
         <button
           className="px-4 py-2 mr-2 font-bold text-white bg-red-800 rounded hover:bg-red-900 focus:outline-none focus:shadow-outline"
           type="submit"

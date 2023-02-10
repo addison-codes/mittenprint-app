@@ -42,129 +42,135 @@ const Table = ({ range, id, publication }) => {
     if (range == 'global') {
       setQueryParams('')
     }
-  }, [])
+  }, [range])
 
-  const columns = useMemo(() =>
-    publication
-      ? [
-          {
-            id: 'select',
-            header: ({ table }) => (
-              <IndeterminateCheckbox
-                {...{
-                  checked: table.getIsAllRowsSelected(),
-                  indeterminate: table.getIsSomeRowsSelected(),
-                  onChange: table.getToggleAllRowsSelectedHandler(),
-                }}
-              />
-            ),
-            cell: ({ row }) => (
-              <IndeterminateCheckbox
-                {...{
-                  checked: row.getIsSelected(),
-                  disabled: !row.getCanSelect(),
-                  indeterminate: row.getIsSomeSelected(),
-                  onChange: row.getToggleSelectedHandler(),
-                }}
-              />
-            ),
-          },
-          {
-            accessorKey: `${publication ? 'publicationName' : 'locationName'}`,
-            header: () => 'Name',
-            // cell: (info) => info.renderValue(),
-            cell: ({ row }) => (
-              <Link
-                href={`${
-                  publication
-                    ? `/publications/${row.original.id}`
-                    : `/locations/${row.original.id}`
-                }`}
-              >
-                {publication
-                  ? row.original.publicationName
-                  : row.original.locationName}
-              </Link>
-            ),
-          },
-        ]
-      : [
-          {
-            id: 'select',
-            header: ({ table }) => (
-              <IndeterminateCheckbox
-                {...{
-                  checked: table.getIsAllRowsSelected(),
-                  indeterminate: table.getIsSomeRowsSelected(),
-                  onChange: table.getToggleAllRowsSelectedHandler(),
-                }}
-              />
-            ),
-            cell: ({ row }) => (
-              <IndeterminateCheckbox
-                {...{
-                  checked: row.getIsSelected(),
-                  disabled: !row.getCanSelect(),
-                  indeterminate: row.getIsSomeSelected(),
-                  onChange: row.getToggleSelectedHandler(),
-                }}
-              />
-            ),
-          },
-          {
-            accessorKey: `${publication ? 'publicationName' : 'locationName'}`,
-            header: () => 'Name',
-            // cell: (info) => info.renderValue(),
-            cell: ({ row }) => (
-              <Link
-                href={`${
-                  publication
-                    ? `/publications/${row.original.id}`
-                    : `/locations/${row.original.id}`
-                }`}
-              >
-                {publication
-                  ? row.original.publicationName
-                  : row.original.locationName}
-              </Link>
-            ),
-          },
-          {
-            accessorKey: 'address',
-            header: () => 'Address',
-            cell: (info) => info.renderValue(),
-          },
-          {
-            accessorKey: 'city',
-            header: () => 'City',
-            cell: (info) => info.renderValue(),
-          },
-          {
-            accessorKey: 'zip',
-            header: () => 'Zip Code',
-            cell: (info) => info.renderValue(),
-          },
-          {
-            accessorKey: 'publications',
-            header: () => 'Publications',
-            cell: ({ row }) => {
-              return row.original.publications.map((e) => {
-                const list = ''
-                console.log(IdToName(e.id))
-                list += IdToName(e.id) + ' '
-                console.log(list)
-                return (
-                  <span
-                    key={list}
-                    className="bg-blue-100 text-blue-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-blue-400 border border-blue-400"
-                  >
-                    {list}
-                  </span>
-                )
-              })
+  const columns = useMemo(
+    () =>
+      publication
+        ? [
+            {
+              id: 'select',
+              header: ({ table }) => (
+                <IndeterminateCheckbox
+                  {...{
+                    checked: table.getIsAllRowsSelected(),
+                    indeterminate: table.getIsSomeRowsSelected(),
+                    onChange: table.getToggleAllRowsSelectedHandler(),
+                  }}
+                />
+              ),
+              cell: ({ row }) => (
+                <IndeterminateCheckbox
+                  {...{
+                    checked: row.getIsSelected(),
+                    disabled: !row.getCanSelect(),
+                    indeterminate: row.getIsSomeSelected(),
+                    onChange: row.getToggleSelectedHandler(),
+                  }}
+                />
+              ),
             },
-          },
-        ]
+            {
+              accessorKey: `${
+                publication ? 'publicationName' : 'locationName'
+              }`,
+              header: () => 'Name',
+              // cell: (info) => info.renderValue(),
+              cell: ({ row }) => (
+                <Link
+                  href={`${
+                    publication
+                      ? `/publications/${row.original.id}`
+                      : `/locations/${row.original.id}`
+                  }`}
+                >
+                  {publication
+                    ? row.original.publicationName
+                    : row.original.locationName}
+                </Link>
+              ),
+            },
+          ]
+        : [
+            {
+              id: 'select',
+              header: ({ table }) => (
+                <IndeterminateCheckbox
+                  {...{
+                    checked: table.getIsAllRowsSelected(),
+                    indeterminate: table.getIsSomeRowsSelected(),
+                    onChange: table.getToggleAllRowsSelectedHandler(),
+                  }}
+                />
+              ),
+              cell: ({ row }) => (
+                <IndeterminateCheckbox
+                  {...{
+                    checked: row.getIsSelected(),
+                    disabled: !row.getCanSelect(),
+                    indeterminate: row.getIsSomeSelected(),
+                    onChange: row.getToggleSelectedHandler(),
+                  }}
+                />
+              ),
+            },
+            {
+              accessorKey: `${
+                publication ? 'publicationName' : 'locationName'
+              }`,
+              header: () => 'Name',
+              // cell: (info) => info.renderValue(),
+              cell: ({ row }) => (
+                <Link
+                  href={`${
+                    publication
+                      ? `/publications/${row.original.id}`
+                      : `/locations/${row.original.id}`
+                  }`}
+                >
+                  {publication
+                    ? row.original.publicationName
+                    : row.original.locationName}
+                </Link>
+              ),
+            },
+            {
+              accessorKey: 'address',
+              header: () => 'Address',
+              cell: (info) => info.renderValue(),
+            },
+            {
+              accessorKey: 'city',
+              header: () => 'City',
+              cell: (info) => info.renderValue(),
+            },
+            {
+              accessorKey: 'zip',
+              header: () => 'Zip Code',
+              cell: (info) => info.renderValue(),
+            },
+            {
+              accessorKey: 'publications',
+              header: () => 'Publications',
+              cell: ({ row }) => {
+                return row.original.publications.map((e) => {
+                  const list = ''
+                  console.log(IdToName(e.id))
+                  list += IdToName(e.id) + ' '
+                  console.log(list)
+                  return (
+                    <span
+                      key={list}
+                      className="bg-blue-100 text-blue-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-blue-400 border border-blue-400"
+                    >
+                      {list}
+                    </span>
+                  )
+                })
+              },
+            },
+          ],
+    [publication]
   )
 
   const table = useReactTable({

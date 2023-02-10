@@ -1,4 +1,3 @@
-import React from 'react'
 import { useForm } from 'react-hook-form'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
@@ -24,17 +23,19 @@ export default function LocationForm({ location }) {
       state: location ? location.state : '',
       zip: location ? location.zip : '',
       id: location ? location.id : '',
-      publications: location ? location.publications : '',
+      // publications: location ? location.publications : '',
     },
   })
   const router = useRouter()
 
   const handleCheck = async (e) => {
     e.target.checked
-      ? location.publications.push({
-          id: e.target.id,
-          qty: 25,
-        })
+      ? !location.publications
+        ? (location.publications = [{ id: e.target.id, qty: 25 }])
+        : location.publications.push({
+            id: e.target.id,
+            qty: 25,
+          })
       : location.publications.splice(
           location.publications.findIndex((a) => a.id === e.target.id),
           1
@@ -162,16 +163,19 @@ export default function LocationForm({ location }) {
             Publications
           </label>
           <ul className="w-48 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-            {/* Map through publications to add them to the selection box */}
+            {/* Map through all publications to see if their id matches this location's assigned publications */}
             {publications?.map((publication) => {
-              let checked = true
+              let checked = false
+              {
+                /* If the location has publications assigned we check the id against the current publication, if it is a match we set checked = true  */
+              }
+
               location.publications
-                ? location.publications.forEach((e) => {
-                    e.id === publication.id
-                      ? (checked = true)
-                      : (checked = false)
-                  })
+                ? location.publications.find((e) => e.id === publication.id)
+                  ? (checked = true)
+                  : (checked = false)
                 : (checked = false)
+
               return (
                 <li
                   key={publication.id}
@@ -180,8 +184,7 @@ export default function LocationForm({ location }) {
                   <div className="flex items-center pl-3">
                     <input
                       id={publication.id}
-                      defaultChecked={checked ? 'checked' : ''}
-                      {...register('publications')}
+                      defaultChecked={checked}
                       type="checkbox"
                       value={publication}
                       onChange={handleCheck}
