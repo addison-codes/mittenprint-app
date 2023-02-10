@@ -4,6 +4,8 @@ import { useState, useMemo, useEffect } from 'react'
 import { getPublicationById } from '/utils/Fauna'
 import { IdToName } from '/utils/IdToName'
 
+import { Select } from 'flowbite-react'
+
 import {
   ColumnDef,
   flexRender,
@@ -285,6 +287,11 @@ const Table = ({ range, id, publication }) => {
         </tbody>
       </table>
 
+      <div className="pt-2 text-gray-900 font-small whitespace-nowrap dark:text-white">
+        {Object.keys(rowSelection).length} of{' '}
+        {table.getPreFilteredRowModel().rows.length} Total Rows Selected
+      </div>
+
       <div className="flex items-center gap-2 my-4">
         <button
           className="p-1 border rounded"
@@ -321,23 +328,24 @@ const Table = ({ range, id, publication }) => {
             {table.getPageCount()}
           </strong>
         </span>
-        <select
+        <Select
           value={table.getState().pagination.pageSize}
           onChange={(e) => {
             table.setPageSize(Number(e.target.value))
           }}
         >
           {[30, 50, 100, 200].map((pageSize) => (
-            <option key={pageSize} value={pageSize}>
+            <option
+              key={pageSize}
+              value={pageSize}
+              className="text-gray-900 font-small whitespace-nowrap dark:text-white"
+            >
               Show {pageSize}
             </option>
           ))}
-        </select>
+        </Select>
       </div>
-      <div>
-        {Object.keys(rowSelection).length} of{' '}
-        {table.getPreFilteredRowModel().rows.length} Total Rows Selected
-      </div>
+
       {/* <button
         type="button"
         className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"

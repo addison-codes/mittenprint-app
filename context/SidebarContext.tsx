@@ -14,11 +14,18 @@ const SidebarContext = createContext<SidebarContextProps>(undefined!);
 
 export function SidebarProvider({ children }: any) {
   const location = isBrowser() ? window.location.pathname : "/";
-  const [isOpen, setOpen] = useState(
-    isBrowser()
-      ? window.localStorage.getItem("isSidebarOpen") === "true"
-      : false
-  );
+  const [isOpen, setOpen] = useState(false);
+
+  useEffect(() => {
+
+    window.localStorage.getItem("isSidebarOpen") === "true" ?
+    setOpen(true) :
+    ''
+
+    // isBrowser()
+    // ? window.localStorage.getItem("isSidebarOpen") === "true"
+    // : false
+  }, [])
 
   // Save latest state to localStorage
   useEffect(() => {
