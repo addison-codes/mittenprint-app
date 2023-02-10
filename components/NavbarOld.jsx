@@ -1,6 +1,6 @@
-import Login from '../components/Login'
-import Logout from '../components/Logout'
-import Profile from '../components/Profile'
+import Login from './Login'
+import Logout from './Logout'
+import Profile from './Profile'
 import Link from 'next/link'
 import Title from './Title'
 

@@ -2,6 +2,9 @@ import '../styles/globals.css'
 import MainLayout from '../components/layouts/MainLayout'
 import type { AppProps } from 'next/app'
 import { Auth0Provider } from '@auth0/auth0-react';
+import { Flowbite } from 'flowbite-react';
+import theme from '../styles/flowbite-theme'
+import NavbarSidebarLayout from '../components/layouts/NavbarSidebar';
 
 
 function MyApp({ Component, pageProps }: AppProps) {
@@ -11,9 +14,11 @@ function MyApp({ Component, pageProps }: AppProps) {
     clientId="PYP7p44tmtp2xvuoOBe0zhxfaQcf3PYt"
     redirectUri={'http://localhost:3000/'}
     >
-      <MainLayout>
+      <Flowbite theme={{ theme }}>
+      <NavbarSidebarLayout>
         <Component {...pageProps} />
-      </MainLayout>
+      </NavbarSidebarLayout>
+      </Flowbite>
     </Auth0Provider>
   )
 }
