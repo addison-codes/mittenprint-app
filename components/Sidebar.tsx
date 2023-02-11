@@ -72,7 +72,7 @@ const ExampleSidebar: FC = function () {
                   Dashboard
                 </Sidebar.Item>
                 <Sidebar.Item
-                  href="/routes"
+                  href="/request"
                   icon={HiMap}
                   className={
                     "/kanban" === currentPage
