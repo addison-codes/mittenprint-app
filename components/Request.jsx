@@ -7,9 +7,10 @@ const Request = () => {
   const fetcher = (url, queryParams = '?limit=100') =>
     fetch(`${url}${queryParams}`).then((res) => res.json())
   const { data, error, mutate } = useSWR(
-    ['/api/locations', queryParams],
+    ['/api/publications/locations/356104002546434115', queryParams],
     fetcher
   )
+
   useEffect(() => {
     setQueryParams('')
   }, [])
@@ -22,7 +23,9 @@ const Request = () => {
       '=' +
       encodeURIComponent(loc.placeId) +
       ';' +
-      loc.coordinates
+      loc.coordinates.lat +
+      ',' +
+      loc.coordinates.lng
     )
   })
 
