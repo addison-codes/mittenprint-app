@@ -19,7 +19,6 @@ export default function LocationFormAuto() {
   const [zip, setZip] = useState('')
   const [city, setCity] = useState('')
   const [name, setName] = useState('')
-  const [inputs, setInputs] = useState([])
   const [placeId, setPlaceId] = useState([])
 
   const fetcher = (url, queryParams = '?limit=100') =>

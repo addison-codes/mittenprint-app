@@ -325,12 +325,12 @@ const UserDropdown: FC = function () {
       label={
         <span>
           <span className="sr-only">User menu</span>
-          <Avatar
+          {/* <Avatar
             alt=""
             img="../images/users/neil-sims.png"
             rounded
             size="sm"
-          />
+          /> */}
         </span>
       }
     >

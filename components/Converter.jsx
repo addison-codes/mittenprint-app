@@ -21,13 +21,11 @@ const Converter = () => {
 
   const changeData = locations.map( (location) => {
     const fullData = data?.filter( fullLoc => location.id === fullLoc.placeId)
-    console.log(fullData)
     return(fullData?.length === 0 ? '' : fullData[0])
 
   }) 
   changeData.shift()
   changeData.pop()
-  console.log(changeData)
 
   const getSheet = () => {
     let ws = XLSX.utils.json_to_sheet(changeData)

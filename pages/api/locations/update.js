@@ -16,7 +16,6 @@ export default async function handler(req, res) {
     publications,
   } = req.body
   const existingRecord = await getLocationById(id)
-  // console.log(existingRecord)
   if (!existingRecord || existingRecord.id !== id) {
     res.statusCode = 404
     return res.json({ msg: 'Record not found' })
@@ -34,7 +33,6 @@ export default async function handler(req, res) {
       coordinates,
       publications
     )
-    console.log(updated)
     return res.status(200).json(updated)
   } catch (err) {
     console.error(err)
