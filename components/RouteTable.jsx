@@ -187,8 +187,7 @@ const Table = ({ range, id, publication }) => {
                     : row.original.locationName}
                 </Link>
               ),
-              filterFn: 'fuzzy',
-              filter: "includes"
+              enableColumnFilter: false,
             },
             {
               accessorKey: 'address',
@@ -209,8 +208,6 @@ const Table = ({ range, id, publication }) => {
             {
               accessorKey: 'publications',
               header: () => 'Publications',
-              Filter: SelectColumnFilter,
-              filter: "includes",
               cell: ({ row }) => {
                 return row.original.publications.map((e) => {
                   const list = ''
@@ -445,7 +442,7 @@ const DefaultFilter = ({ column, table}) => {
     [column.getFacetedUniqueValues(), column, firstValue]
   )
 
-    console.log(sortedUniqueValues)
+
 
   return typeof firstValue === 'number' ? (
     <div>
@@ -509,31 +506,34 @@ const DefaultFilter = ({ column, table}) => {
   )
 }
 
+// const PublicationColumnFilter = ({ column }) => {
+//   const options
+// }
+
 
 
 const SelectColumnFilter = ({ column,
   column: { filterValue, setFilter, preFilteredRows, id },
  }) => {
+    // Flatten the array of unique values - because they are arrays of objects they are all unique. When the array is flattened, we get a single array of objects.
+    const flatOne = Array.from(column.getFacetedUniqueValues()).flat(3)
+    // Extract JUST the IDs from the list and remove the undefined results - I'm not sure why there are undefined
+      const ids = [...new Set(flatOne.map( ({ id }) => id))].filter( e => e !== undefined)
+    
    // Use preFilteredRows to calculate the options
- const options = useMemo(() => {
-  const options = new Set();
-  preFilteredRows?.forEach((row) => {
-    options.add(row.values[id]); 
-  });
-  return [...options.values()]; 
-}, [id, preFilteredRows]);
+ const options = ids
 
 // UI for Multi-Select box
 return (
   <select
     value={filterValue}
     onChange={(e) => {
-      setFilter(e.target.value || undefined);
+      filterValue(e.target.value || undefined);
     }}
   >
     <option value="">All</option>
-    {options.map((option, i) => (
-      <option key={i} value={option}>
+    {options.map((option) => (
+      <option key={option} value={option}>
         {option}
       </option>
     ))}
