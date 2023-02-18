@@ -187,7 +187,8 @@ const Table = ({ range, id, publication }) => {
                     : row.original.locationName}
                 </Link>
               ),
-              filterFn: 'fuzzy'
+              filterFn: 'fuzzy',
+              filter: "includes"
             },
             {
               accessorKey: 'address',
@@ -250,6 +251,7 @@ const Table = ({ range, id, publication }) => {
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     onRowSelectionChange: setRowSelection,
+    getFacetedUniqueValues: getFacetedUniqueValues(),
     getPreFilteredRowModel: getPreFilteredRowModel,
     debugTable: true,
   })
@@ -443,6 +445,8 @@ const DefaultFilter = ({ column, table}) => {
     [column.getFacetedUniqueValues(), column, firstValue]
   )
 
+    console.log(sortedUniqueValues)
+
   return typeof firstValue === 'number' ? (
     <div>
       <div className="flex space-x-2">
@@ -497,7 +501,7 @@ const DefaultFilter = ({ column, table}) => {
         value={(columnFilterValue ?? '')}
         onChange={value => column.setFilterValue(value)}
         placeholder={`Search... (${column.getFacetedUniqueValues().size})`}
-        className="border rounded shadow w-36"
+        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
         list={column.id + 'list'}
       />
       <div className="h-1" />
@@ -505,9 +509,9 @@ const DefaultFilter = ({ column, table}) => {
   )
 }
 
-console.log(preFilteredRows)
 
-const SelectColumnFilter = ({
+
+const SelectColumnFilter = ({ column,
   column: { filterValue, setFilter, preFilteredRows, id },
  }) => {
    // Use preFilteredRows to calculate the options

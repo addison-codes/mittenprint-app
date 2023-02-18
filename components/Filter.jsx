@@ -79,7 +79,7 @@ export const DefaultFilter = ({ column, table}) => {
 }
 
 export const SelectColumnFilter = ({
-  column: { filterValue, setFilter, preFilteredRows, id },
+  column: { filterValue, setFilter, preFilteredRows: { length }, id },
  }) => {
    // Use preFilteredRows to calculate the options
  const options = useMemo(() => {
