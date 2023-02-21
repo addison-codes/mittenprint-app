@@ -10,6 +10,15 @@ import PlacesAutocomplete, {
 import useSWR from 'swr'
 
 export default function LocationFormAuto() {
+  const router = useRouter()
+
+  const assignedPublications = [
+    {
+      id: router.query.publication,
+      qty: 25,
+    },
+  ]
+// TODO: Consolidate state
   const [location, setLocation] = useState('')
   const [address, setAddress] = useState('')
   const [coordinates, setCoordinates] = useState({
@@ -20,6 +29,7 @@ export default function LocationFormAuto() {
   const [city, setCity] = useState('')
   const [name, setName] = useState('')
   const [placeId, setPlaceId] = useState([])
+  const [assignedPubs, setAssignedPubs] = useState([]) 
 
   const fetcher = (url, queryParams = '?limit=100') =>
     fetch(`${url}${queryParams}`).then((res) => res.json())
@@ -27,6 +37,19 @@ export default function LocationFormAuto() {
   const { data, error, mutate } = useSWR(`/api/publications`, fetcher)
 
   const publications = data
+
+
+  router.query.publication && assignedPubs.length === 0 ? (
+    setAssignedPubs([
+    {
+      id: router.query.publication,
+      qty: 25
+    },
+    ...assignedPubs
+  ]) ): ''
+
+  console.log(assignedPubs)
+
 
   const handleSelect = async (value, placeId, suggestion) => {
     const results = await geocodeByAddress(value)
@@ -48,7 +71,7 @@ export default function LocationFormAuto() {
     setAddress(address)
     setZip(postalCode)
     setCoordinates(latLng)
-    setCity(city)
+    setCity(city) 
     setLocation(value)
     setPlaceId(placeId)
   }
@@ -66,18 +89,11 @@ export default function LocationFormAuto() {
     //   zip: location ? location.data.zip : '',
     // },
   })
-  const router = useRouter()
 
-  const assignedPublications = [
-    {
-      id: router.query.publication,
-      qty: 25,
-    },
-  ]
-
-  const createSnippet = async (data) => {
+  const createLocation = async (data) => {
     // const { locationName, address, city, zip, coordinates, placeId } = data
-    const publications = assignedPublications
+    const publications = assignedPubs
+    console.log(publications)
     const locationName = name
     try {
       await fetch('api/createLocation', {
@@ -103,17 +119,46 @@ export default function LocationFormAuto() {
 
   const handleCheck = async (e) => {
     e.target.checked
-      ? !assignedPublications
-        ? (assignedPublications = [{ id: e.target.id, qty: 25 }])
-        : assignedPublications.push({
-            id: e.target.id,
-            qty: 25,
-          })
-      : assignedPublications.splice(
-          assignedPublications.findIndex((a) => a.id === e.target.id),
-          1
-        )
+      ? setAssignedPubs([
+        { id: e.target.id,
+        qty: 25
+      },
+      ...assignedPubs
+      ])
+      : 
+      setAssignedPubs(
+        assignedPubs.filter(a => {
+          a.id !== e.target.id})
+      )
+      
+      // assignedPublications.splice(
+      //     assignedPublications.findIndex((a) => a.id === e.target.id),
+      //     1
+      //   )
+      //   setAssignedPubs({...assignedPubs, assignedPublications })
+        console.log(assignedPubs)
   }
+
+
+  // const handleCheck = async (e) => {
+  //   e.target.checked
+  //     ? !assignedPublications
+  //       ? (assignedPublications = [{ id: e.target.id, qty: 25 }])
+  //       : assignedPublications.push({
+  //           id: e.target.id,
+  //           qty: 25,
+  //         })
+  //     : assignedPublications.splice(
+  //         assignedPublications.findIndex((a) => a.id === e.target.id),
+  //         1
+  //       )
+  //       setAssignedPubs({...assignedPubs, assignedPublications })
+  //       console.log(assignedPubs)
+  // }
+
+
+
+
   // const updateSnippet = async (data) => {
   //     const { locationName, address, city, name, zip } = data;
   //     const id = snippet.id;
@@ -133,7 +178,7 @@ export default function LocationFormAuto() {
 
   return (
     <div>
-      <form onSubmit={handleSubmit(createSnippet)}>
+      <form onSubmit={handleSubmit(createLocation)}>
         <div className="mb-4">
           <label className="block mb-1 text-sm font-bold text-red-800">
             Location Search
@@ -186,7 +231,7 @@ export default function LocationFormAuto() {
           <input
             type="text"
             className="w-full px-3 py-2 text-gray-700 bg-white border rounded outline-none"
-            value={name ?? 'Waiting'}
+            defaultValue={name ?? 'Waiting'}
           />
           {errors.locationName && (
             <p className="font-bold text-red-900">
@@ -201,7 +246,7 @@ export default function LocationFormAuto() {
           <input
             type="text"
             className="w-full px-3 py-2 text-gray-700 bg-white border rounded outline-none"
-            value={address ?? 'Waiting'}
+            defaultValue={address ?? 'Waiting'}
           />
           {errors.address && (
             <p className="font-bold text-red-900">{errors.address?.message}</p>
@@ -214,7 +259,7 @@ export default function LocationFormAuto() {
           <input
             type="text"
             className="w-full px-3 py-2 text-gray-700 bg-white border rounded outline-none"
-            value={city ?? 'Waiting'}
+            defaultValue={city ?? 'Waiting'}
           />
           {errors.city && (
             <p className="font-bold text-red-900">{errors.city?.message}</p>
@@ -241,7 +286,7 @@ export default function LocationFormAuto() {
           <input
             type="text"
             className="w-full px-3 py-2 text-gray-700 bg-white border rounded outline-none"
-            value={zip ?? 'Waiting'}
+            defaultValue={zip ?? 'Waiting'}
           />
           {errors.zip && (
             <p className="font-bold text-red-900">{errors.zip?.message}</p>
@@ -316,6 +361,14 @@ export default function LocationFormAuto() {
             })}
           </ul>
         </div>
+
+        {/* <ul>
+          {assignedPubs.map( pub => {
+            return (
+              <li key={pub.id}>{pub.id}</li>
+            )
+          })}
+        </ul> */}
 
         <button
           className="px-4 py-2 mr-2 font-bold text-white bg-red-800 rounded hover:bg-red-900 focus:outline-none focus:shadow-outline"
