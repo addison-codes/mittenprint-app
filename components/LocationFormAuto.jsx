@@ -36,6 +36,8 @@ export default function LocationFormAuto() {
 
   const { data, error, mutate } = useSWR(`/api/publications`, fetcher)
 
+  console.log(data)
+
   const publications = data
 
 
@@ -130,51 +132,7 @@ export default function LocationFormAuto() {
         assignedPubs.filter(a => {
           a.id !== e.target.id})
       )
-      
-      // assignedPublications.splice(
-      //     assignedPublications.findIndex((a) => a.id === e.target.id),
-      //     1
-      //   )
-      //   setAssignedPubs({...assignedPubs, assignedPublications })
-        console.log(assignedPubs)
   }
-
-
-  // const handleCheck = async (e) => {
-  //   e.target.checked
-  //     ? !assignedPublications
-  //       ? (assignedPublications = [{ id: e.target.id, qty: 25 }])
-  //       : assignedPublications.push({
-  //           id: e.target.id,
-  //           qty: 25,
-  //         })
-  //     : assignedPublications.splice(
-  //         assignedPublications.findIndex((a) => a.id === e.target.id),
-  //         1
-  //       )
-  //       setAssignedPubs({...assignedPubs, assignedPublications })
-  //       console.log(assignedPubs)
-  // }
-
-
-
-
-  // const updateSnippet = async (data) => {
-  //     const { locationName, address, city, name, zip } = data;
-  //     const id = snippet.id;
-  //     try {
-  //         await fetch('api/updateSnippet', {
-  //             method: 'PUT',
-  //             body: JSON.stringify({ locationName, address, city, name, zip, id}),
-  //             headers: {
-  //                 'Content-Type': 'application/json'
-  //             },
-  //         })
-  //         router.push('/');
-  //     } catch (err) {
-  //         console.error(err);
-  //     }
-  // };
 
   return (
     <div>
@@ -327,20 +285,21 @@ export default function LocationFormAuto() {
                 /* If the location has publications assigned we check the id against the current publication, if it is a match we set checked = true  */
               }
 
-              assignedPublications
-                ? assignedPublications.find((e) => e.id === publication.id)
+              const match = assignedPubs.find(({id}) => id === publication.id)
+
+              assignedPubs
+                ? match
                   ? (checked = true)
                   : (checked = false)
-                : publication.id === router.query.publication
-                ? (checked = true)
-                : (checked = false)
+                : ''
 
               return (
                 <li
                   key={publication.id}
-                  className="w-full border-b border-gray-200 rounded-t-lg dark:border-gray-600"
+                  className="flex w-full border-b border-gray-200 rounded-t-lg dark:border-gray-600"
                 >
                   <div className="flex items-center pl-3">
+                  {/* TODO: make checkbox readonly if there are query params for publication */}
                     <input
                       id={publication.id}
                       defaultChecked={checked}
@@ -354,21 +313,25 @@ export default function LocationFormAuto() {
                       className="w-full py-3 ml-2 text-sm font-medium text-gray-900 dark:text-gray-300"
                     >
                       {publication.publicationName}
+                      {/* {console.log(assignedPubs.find(a => ))} */}
                     </label>
+                    <label
+                      className="w-full py-3 mr-2 text-sm font-medium text-right text-gray-900 dark:text-gray-300"
+                    >
+                      Qty
+                    </label>
+                    <input className='bg-gray-50 mr-1  border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-1/2 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500' onChange={e => {
+                      const updatedPubs = assignedPubs.map(assignedPub => {
+                      if (assignedPub.id === publication.id) { return {...assignedPub, qty: parseInt(e.target.value)}}
+                      return assignedPub
+                    })
+                    setAssignedPubs(updatedPubs)}}  defaultValue={match?.qty} />
                   </div>
                 </li>
               )
             })}
           </ul>
         </div>
-
-        {/* <ul>
-          {assignedPubs.map( pub => {
-            return (
-              <li key={pub.id}>{pub.id}</li>
-            )
-          })}
-        </ul> */}
 
         <button
           className="px-4 py-2 mr-2 font-bold text-white bg-red-800 rounded hover:bg-red-900 focus:outline-none focus:shadow-outline"
