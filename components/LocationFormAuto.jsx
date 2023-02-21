@@ -36,7 +36,6 @@ export default function LocationFormAuto() {
 
   const { data, error, mutate } = useSWR(`/api/publications`, fetcher)
 
-  console.log(data)
 
   const publications = data
 
@@ -50,7 +49,6 @@ export default function LocationFormAuto() {
     ...assignedPubs
   ]) ): ''
 
-  console.log(assignedPubs)
 
 
   const handleSelect = async (value, placeId, suggestion) => {
@@ -61,8 +59,9 @@ export default function LocationFormAuto() {
     const { long_name: postalCode = '' } =
       place.address_components.find((c) => c.types.includes('postal_code')) ||
       {}
+    // TODO: Find difference between 'locality' and 'political'
     const { short_name: city = '' } =
-      place.address_components.find((c) => c.types.includes('political')) || {}
+      place.address_components.find((c) => c.types.includes('locality')) || {}
     const { short_name: streetNumber = '' } =
       place.address_components.find((c) => c.types.includes('street_number')) ||
       {}
@@ -95,7 +94,6 @@ export default function LocationFormAuto() {
   const createLocation = async (data) => {
     // const { locationName, address, city, zip, coordinates, placeId } = data
     const publications = assignedPubs
-    console.log(publications)
     const locationName = name
     try {
       await fetch('api/createLocation', {
@@ -277,7 +275,7 @@ export default function LocationFormAuto() {
           <label className="block mb-1 text-sm font-bold text-red-800">
             Publications
           </label>
-          <ul className="w-48 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+          <ul className="w-full text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
             {/* Map through all publications to see if their id matches this location's assigned publications */}
             {publications?.map((publication) => {
               let checked = false
@@ -298,7 +296,7 @@ export default function LocationFormAuto() {
                   key={publication.id}
                   className="flex w-full border-b border-gray-200 rounded-t-lg dark:border-gray-600"
                 >
-                  <div className="flex items-center pl-3">
+                  <div className="flex items-center w-full pl-3">
                   {/* TODO: make checkbox readonly if there are query params for publication */}
                     <input
                       id={publication.id}
@@ -313,8 +311,9 @@ export default function LocationFormAuto() {
                       className="w-full py-3 ml-2 text-sm font-medium text-gray-900 dark:text-gray-300"
                     >
                       {publication.publicationName}
-                      {/* {console.log(assignedPubs.find(a => ))} */}
                     </label>
+                    <div className='flex justify-self-stretch'>
+
                     <label
                       className="w-full py-3 mr-2 text-sm font-medium text-right text-gray-900 dark:text-gray-300"
                     >
@@ -326,6 +325,8 @@ export default function LocationFormAuto() {
                       return assignedPub
                     })
                     setAssignedPubs(updatedPubs)}}  defaultValue={match?.qty} />
+                                        </div>
+
                   </div>
                 </li>
               )
