@@ -8,10 +8,11 @@ const q = faunadb.query
 const getLocations = async () => {
   const { data } = await faunaClient.query(
     q.Map(
-      q.Paginate(q.Documents(q.Collection('locations')), { size: 200 }),
+      q.Paginate(q.Documents(q.Collection('locations')), { size: 5000 }),
       q.Lambda('ref', q.Get(q.Var('ref')))
     )
   )
+  console.log(data)
   const locations = data.map((location) => {
     location.id = location.ref.id
     location.data.id = location.id
@@ -24,7 +25,7 @@ const getLocations = async () => {
 const getLocationsByPublication = async (id) => {
   const { data } = await faunaClient.query(
     q.Map(
-      q.Paginate(q.Match(q.Index('locationsByPublication'), id), { size: 200 }),
+      q.Paginate(q.Match(q.Index('locationsByPublication'), id), { size: 5000 }),
       q.Lambda('ref', q.Get(q.Var('ref')))
     )
   )
