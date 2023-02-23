@@ -9,7 +9,7 @@ const SignInPage = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const router = useRouter();
-  const callbackUrl = decodeURI((router.query?.callbackUrl as string) ?? "/");
+  const callbackUrl = "/";
   const handleSubmit = async (
     e: React.FormEvent<HTMLFormElement>
   ): Promise<void> => {
