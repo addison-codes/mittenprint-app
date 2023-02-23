@@ -1,5 +1,6 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import type { FC } from "react";
+import Login from './Login'
 import {
   Avatar,
   DarkThemeToggle,
@@ -74,7 +75,6 @@ const ExampleNavbar: FC = function () {
                 Search
               </Label>
               <TextInput
-                icon={HiSearch}
                 id="search"
                 name="search"
                 placeholder="Search"
@@ -96,6 +96,7 @@ const ExampleNavbar: FC = function () {
               <NotificationBellDropdown />
               <AppDrawerDropdown />
               <DarkThemeToggle />
+              <Login />
             </div>
             <div className="hidden lg:block">
               <UserDropdown />

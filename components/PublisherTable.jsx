@@ -1,8 +1,9 @@
 import useSWR from 'swr'
 import Link from 'next/link'
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect, useReducer } from 'react'
 import { getPublicationById } from '/utils/Fauna'
 import { IdToName } from '/utils/IdToName'
+import DebouncedInput from './DebouncedInput'
 
 import { Select } from 'flowbite-react'
 
@@ -13,28 +14,75 @@ import {
   getSortedRowModel,
   SortingState,
   useReactTable,
+  ColumnFiltersState,
   PaginationState,
   getPaginationRowModel,
   enableMultiRowSelection,
   onChangeFn,
+  getFilteredRowModel,
+  getPreFilteredRowModel,
+  getFacetedRowModel,
+  getFacetedUniqueValues,
+  getFacetedMinMaxValues,
+  FilterFn,
+  FilterFns,
 } from '@tanstack/react-table'
+import {
+  RankingInfo,
+  rankItem,
+  compareItems,
+} from '@tanstack/match-sorter-utils'
+
 import IndeterminateCheckbox from './IndeterminateCheckbox'
 import Button from './Button'
+
+const fuzzyFilter = (row, columnId, value, addMeta) => {
+  // Rank the item
+  const itemRank = rankItem(row.getValue(columnId), value)
+
+  // Store the itemRank info
+  addMeta({
+    itemRank,
+  })
+
+  // Return if the item should be filtered in/out
+  return itemRank.passed
+}
+
+const fuzzySort = (rowA, rowB, columnId) => {
+  let dir = 0
+
+  // Only sort by rank if the column has ranking information
+  if (rowA.columnFiltersMeta[columnId]) {
+    dir = compareItems(
+      rowA.columnFiltersMeta[columnId]?.itemRank,
+      rowB.columnFiltersMeta[columnId]?.itemRank
+    )
+  }
+
+  // Provide an alphanumeric fallback for when the item ranks are equal
+  return dir === 0 ? sortingFns.alphanumeric(rowA, rowB, columnId) : dir
+}
+
 
 const Table = ({ range, id, publication }) => {
   const [sorting, setSorting] = useState([])
   const [queryParams, setQueryParams] = useState('')
   const [rowSelection, setRowSelection] = useState({})
 
+  const [columnFilters, setColumnFilters] = useState(
+    []
+  )
+
+
+  const rerender = useReducer(() => ({}), {})[1]
+
+
   const fetcher = (url, queryParams = '?limit=100') =>
     fetch(`${url}${queryParams}`).then((res) => res.json())
   const { data, error, mutate } = useSWR(
     [
-      publication
-        ? '/api/publications'
-        : id
-        ? `/api/publications/locations/${id}`
-        : '/api/locations',
+      'api/publications/locations/354757604067508307',
       queryParams,
     ],
     fetcher
@@ -48,52 +96,7 @@ const Table = ({ range, id, publication }) => {
 
   const columns = useMemo(
     () =>
-      publication
-        ? [
-            {
-              id: 'select',
-              header: ({ table }) => (
-                <IndeterminateCheckbox
-                  {...{
-                    checked: table.getIsAllRowsSelected(),
-                    indeterminate: table.getIsSomeRowsSelected(),
-                    onChange: table.getToggleAllRowsSelectedHandler(),
-                  }}
-                />
-              ),
-              cell: ({ row }) => (
-                <IndeterminateCheckbox
-                  {...{
-                    checked: row.getIsSelected(),
-                    disabled: !row.getCanSelect(),
-                    indeterminate: row.getIsSomeSelected(),
-                    onChange: row.getToggleSelectedHandler(),
-                  }}
-                />
-              ),
-            },
-            {
-              accessorKey: `${
-                publication ? 'publicationName' : 'locationName'
-              }`,
-              header: () => 'Name',
-              // cell: (info) => info.renderValue(),
-              cell: ({ row }) => (
-                <Link
-                  href={`${
-                    publication
-                      ? `/publications/${row.original.id}`
-                      : `/locations/${row.original.id}`
-                  }`}
-                >
-                  {publication
-                    ? row.original.publicationName
-                    : row.original.locationName}
-                </Link>
-              ),
-            },
-          ]
-        : [
+      [
             {
               id: 'select',
               header: ({ table }) => (
@@ -140,6 +143,7 @@ const Table = ({ range, id, publication }) => {
               accessorKey: 'address',
               header: () => 'Address',
               cell: (info) => info.renderValue(),
+              enableColumnFilter: false,
             },
             {
               accessorKey: 'city',
@@ -153,21 +157,14 @@ const Table = ({ range, id, publication }) => {
             },
             {
               accessorKey: 'publications',
-              header: () => 'Publications',
+              header: () => 'Quantity',
+              enableColumnFilter: false,
               cell: ({ row }) => {
-                return row.original.publications.map((e) => {
-                  const list = ''
-                  list += IdToName(e.id) + ' '
+                const pub = row.original.publications.find(pub => pub.id === '354757604067508307')
                   return (
-                    <span
-                      key={list}
-                      className="bg-blue-100 text-blue-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-blue-400 border border-blue-400"
-                    >
-                      {list}
-                    </span>
-                  )
-                })
-              },
+                    <span>{pub.qty}</span>
+                  )                  
+                }
             },
           ],
     [publication]
@@ -176,10 +173,17 @@ const Table = ({ range, id, publication }) => {
   const table = useReactTable({
     data,
     columns,
+    filterFns: {
+      fuzzy: fuzzyFilter
+    },
     state: {
       sorting,
       rowSelection,
+      columnFilters
     },
+    onColumnFiltersChange: setColumnFilters,
+    globalFilterFn: fuzzyFilter,
+    getFilteredRowModel: getFilteredRowModel(),
     enableMultiRowSelection,
     initialState: { pagination: { pageSize: 30 } },
     onSortingChange: setSorting,
@@ -187,8 +191,20 @@ const Table = ({ range, id, publication }) => {
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     onRowSelectionChange: setRowSelection,
+    getFacetedUniqueValues: getFacetedUniqueValues(),
+    getPreFilteredRowModel: getPreFilteredRowModel,
     debugTable: true,
   })
+
+  useEffect(() => {
+    if (table.getState().columnFilters[0]?.id === 'locationName') {
+      if (table.getState().sorting[0]?.id !== 'locationName') {
+        table.setSorting([{ id: 'locationName', desc: false }])
+      }
+    }
+  }, [table.getState().columnFilters[0]?.id, table])
+
+
   if (error)
     return (
       <div className="h-screen m-8 text-4xl text-center text-red-200">
@@ -235,6 +251,7 @@ const Table = ({ range, id, publication }) => {
                     className="px-6 py-3"
                   >
                     {header.isPlaceholder ? null : (
+                      <>
                       <div
                         {...{
                           className: header.column.getCanSort()
@@ -252,6 +269,12 @@ const Table = ({ range, id, publication }) => {
                           desc: ' 🔽',
                         }[header.column.getIsSorted()] ?? null}
                       </div>
+                          <div>
+                      {header.column.getCanFilter() ? (
+                            <DefaultFilter column={header.column} table={table} />
+                        ) : null}
+                          </div>
+                      </>
                     )}
                   </th>
                 )
@@ -332,7 +355,7 @@ const Table = ({ range, id, publication }) => {
             table.setPageSize(Number(e.target.value))
           }}
         >
-          {[30, 50, 100, 200].map((pageSize) => (
+          {[30, 50, 100, 200, table.getPreFilteredRowModel().rows.length].map((pageSize) => (
             <option
               key={pageSize}
               value={pageSize}
@@ -343,20 +366,117 @@ const Table = ({ range, id, publication }) => {
           ))}
         </Select>
       </div>
-
-      {/* <button
-        type="button"
-        className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
-        onClick={() => {
-          const selected = table.getSelectedRowModel().flatRows
-          selected.map((selection) => {
-          })
-        }}
-      >
-        Log Selected
-      </button> */}
     </div>
   )
 }
+
+const DefaultFilter = ({ column, table}) => {
+  const firstValue = table
+    .getPreFilteredRowModel()
+    .flatRows[0]?.getValue(column.id)
+
+  const columnFilterValue = column.getFilterValue()
+
+  const sortedUniqueValues = useMemo(
+    () =>
+      typeof firstValue === 'number'
+        ? []
+        : Array.from(column.getFacetedUniqueValues().keys()).sort(),
+    [column.getFacetedUniqueValues(), column, firstValue]
+  )
+
+
+
+  return typeof firstValue === 'number' ? (
+    <div>
+      <div className="flex space-x-2">
+        <DebouncedInput
+          type="number"
+          min={Number(column.getFacetedMinMaxValues()?.[0] ?? '')}
+          max={Number(column.getFacetedMinMaxValues()?.[1] ?? '')}
+          value={(columnFilterValue)?.[0] ?? ''}
+          onChange={value =>
+            column.setFilterValue((old) => [value, old?.[1]])
+          }
+          placeholder={`Min ${
+            column.getFacetedMinMaxValues()?.[0]
+              ? `(${column.getFacetedMinMaxValues()?.[0]})`
+              : ''
+          }`}
+          className="w-24 border rounded shadow"
+        />
+        <DebouncedInput
+          type="number"
+          min={Number(column.getFacetedMinMaxValues()?.[0] ?? '')}
+          max={Number(column.getFacetedMinMaxValues()?.[1] ?? '')}
+          value={(columnFilterValue)?.[1] ?? ''}
+          onChange={value =>
+            column.setFilterValue((old) => [old?.[0], value])
+          }
+          placeholder={`Max ${
+            column.getFacetedMinMaxValues()?.[1]
+              ? `(${column.getFacetedMinMaxValues()?.[1]})`
+              : ''
+          }`}
+          className="w-24 border rounded shadow"
+        />
+      </div>
+      <div className="h-1" />
+    </div>
+  )  : (
+    <>
+      <datalist id={column.id + 'list'}>
+        {sortedUniqueValues.slice(0, 5000).map((value) => (
+          <option value={value} key={value} />
+        ))}
+      </datalist>
+      <DebouncedInput
+        type="text"
+        value={(columnFilterValue ?? '')}
+        onChange={value => column.setFilterValue(value)}
+        placeholder={`Search... (${column.getFacetedUniqueValues().size})`}
+        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+        list={column.id + 'list'}
+      />
+      <div className="h-1" />
+    </>
+  )
+}
+
+// const PublicationColumnFilter = ({ column }) => {
+//   const options
+// }
+
+
+
+const SelectColumnFilter = ({ column,
+  column: { filterValue, setFilter, preFilteredRows, id },
+ }) => {
+    // Flatten the array of unique values - because they are arrays of objects they are all unique. When the array is flattened, we get a single array of objects.
+    const flatOne = Array.from(column.getFacetedUniqueValues()).flat(3)
+    // Extract JUST the IDs from the list and remove the undefined results - I'm not sure why there are undefined
+      const ids = [...new Set(flatOne.map( ({ id }) => id))].filter( e => e !== undefined)
+    
+   // Use preFilteredRows to calculate the options
+ const options = ids
+
+// UI for Multi-Select box
+return (
+  <select
+    value={filterValue}
+    onChange={(e) => {
+      filterValue(e.target.value || undefined);
+    }}
+  >
+    <option value="">All</option>
+    {options.map((option) => (
+      <option key={option} value={option}>
+        {option}
+      </option>
+    ))}
+  </select>
+);
+}
+
 
 export default Table
