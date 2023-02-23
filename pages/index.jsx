@@ -5,8 +5,13 @@ import Head from 'next/head'
 import Table from '../components/Table'
 import Button from '../components/Button'
 import Title from '../components/Title'
+import { useSession, signIn, signOut } from "next-auth/react"
+import PublisherTable from '../components/PublisherTable'
+
 
 const Home = () => {
+  const { data: session } = useSession()
+
   return (
     <div>
       <Head>
@@ -16,12 +21,34 @@ const Home = () => {
       </Head>
 
       <main className="px-4 pt-6 mx-auto">
-        <Title text={'All Publications'} />
-        <Table publication />
-        <Button label="Add Publication" link="/new-publication" />
-        <Title text={'All Locations'} />
-        <Button label="Add Location" link="/new-location" />
-        <Table />
+      {(session?.user.role === undefined) ? (
+          <Title text={'You must be signed in to access this data'} />
+        ) : (() => {
+          switch (session?.user.role) {
+            case 'admin':
+            return (
+              <>
+                <Title text={'All Publications'} />
+                <Table publication />
+                <Button label="Add Publication" link="/new-publication" />
+                <Title text={'All Locations'} />
+                <Button label="Add Location" link="/new-location" />
+                <Table />
+              </>
+            )
+            case 'pub':
+            return (
+              <>
+                <Title text={'REVUE Locations'} />
+                <PublisherTable />
+              </>
+            )
+            default:
+            return (
+              <Title text={'You must be signed in to a priviledged user account access this data'} />
+            )
+          }
+        })()}
       </main>
     </div>
   )

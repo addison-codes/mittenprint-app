@@ -12,7 +12,6 @@ const getLocations = async () => {
       q.Lambda('ref', q.Get(q.Var('ref')))
     )
   )
-  console.log(data)
   const locations = data.map((location) => {
     location.id = location.ref.id
     location.data.id = location.id

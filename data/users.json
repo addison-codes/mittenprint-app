@@ -1,0 +1,16 @@
+[
+  {
+    "email": "hi@addison.codes",
+    "password": "testpw",
+    "name": "Test Admin",
+    "role": "admin",
+    "id": "001"
+  },
+  {
+    "email": "kelli@revuewm.com",
+    "password": "temppw",
+    "name": "Test Publisher",
+    "role": "pub",
+    "id": "002"
+  }
+]
