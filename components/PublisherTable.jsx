@@ -34,7 +34,6 @@ import {
 } from '@tanstack/match-sorter-utils'
 
 import IndeterminateCheckbox from './IndeterminateCheckbox'
-import Button from './Button'
 
 const fuzzyFilter = (row, columnId, value, addMeta) => {
   // Rank the item
@@ -93,6 +92,7 @@ const Table = ({ range, id, publication }) => {
       setQueryParams('')
     }
   }, [range])
+
 
   const columns = useMemo(
     () =>
@@ -157,14 +157,16 @@ const Table = ({ range, id, publication }) => {
             },
             {
               accessorKey: 'publications',
+              accessorFn: row => {
+                const pub = row.publications.find(pub => pub.id === '354757604067508307')
+                return (
+                  pub.qty
+                )          
+              },
               header: () => 'Quantity',
-              enableColumnFilter: false,
-              cell: ({ row }) => {
-                const pub = row.original.publications.find(pub => pub.id === '354757604067508307')
-                  return (
-                    <span>{pub.qty}</span>
-                  )                  
-                }
+              // enableColumnFilter: false,
+              cell: info => info.renderValue(),
+              footer: ({table}) => table.getFilteredRowModel().rows.reduce((total, row) => total + row.getValue('publications'), 0)
             },
           ],
     [publication]
@@ -194,7 +196,9 @@ const Table = ({ range, id, publication }) => {
     getFacetedUniqueValues: getFacetedUniqueValues(),
     getPreFilteredRowModel: getPreFilteredRowModel,
     debugTable: true,
+    autoResetPageIndex: false
   })
+  // TODO: Implement manual pagination
 
   useEffect(() => {
     if (table.getState().columnFilters[0]?.id === 'locationName') {
@@ -306,6 +310,22 @@ const Table = ({ range, id, publication }) => {
             )
           })}
         </tbody>
+        <tfoot className='font-semibold text-gray-900 dark:text-white'>
+          {table.getFooterGroups().map(footerGroup => (
+            <tr key={footerGroup.id}>
+              {footerGroup.headers.map(header => (
+                <th key={header.id}>
+                  {header.isPlaceholder
+                    ? null
+                    : flexRender(
+                        header.column.columnDef.footer,
+                        header.getContext()
+                      )}
+                </th>
+              ))}
+            </tr>
+          ))}
+        </tfoot>
       </table>
 
       <div className="pt-2 text-gray-900 font-small whitespace-nowrap dark:text-white">
@@ -349,6 +369,8 @@ const Table = ({ range, id, publication }) => {
             {table.getPageCount()}
           </strong>
         </span>
+  {console.log(table.getState().pagination.pageIndex)}
+
         <Select
           value={table.getState().pagination.pageSize}
           onChange={(e) => {
@@ -369,7 +391,6 @@ const Table = ({ range, id, publication }) => {
     </div>
   )
 }
-
 const DefaultFilter = ({ column, table}) => {
   const firstValue = table
     .getPreFilteredRowModel()
