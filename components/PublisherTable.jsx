@@ -93,6 +93,7 @@ const Table = ({ range, id, publication }) => {
     }
   }, [range])
 
+
   const columns = useMemo(
     () =>
       [
@@ -163,7 +164,7 @@ const Table = ({ range, id, publication }) => {
                 )          
               },
               header: () => 'Quantity',
-              enableColumnFilter: false,
+              // enableColumnFilter: false,
               cell: info => info.renderValue(),
               footer: ({table}) => table.getFilteredRowModel().rows.reduce((total, row) => total + row.getValue('publications'), 0)
             },
@@ -195,7 +196,9 @@ const Table = ({ range, id, publication }) => {
     getFacetedUniqueValues: getFacetedUniqueValues(),
     getPreFilteredRowModel: getPreFilteredRowModel,
     debugTable: true,
+    autoResetPageIndex: false
   })
+  // TODO: Implement manual pagination
 
   useEffect(() => {
     if (table.getState().columnFilters[0]?.id === 'locationName') {
@@ -307,7 +310,7 @@ const Table = ({ range, id, publication }) => {
             )
           })}
         </tbody>
-        <tfoot>
+        <tfoot className='font-semibold text-gray-900 dark:text-white'>
           {table.getFooterGroups().map(footerGroup => (
             <tr key={footerGroup.id}>
               {footerGroup.headers.map(header => (
@@ -366,6 +369,8 @@ const Table = ({ range, id, publication }) => {
             {table.getPageCount()}
           </strong>
         </span>
+  {console.log(table.getState().pagination.pageIndex)}
+
         <Select
           value={table.getState().pagination.pageSize}
           onChange={(e) => {
@@ -386,7 +391,6 @@ const Table = ({ range, id, publication }) => {
     </div>
   )
 }
-
 const DefaultFilter = ({ column, table}) => {
   const firstValue = table
     .getPreFilteredRowModel()
