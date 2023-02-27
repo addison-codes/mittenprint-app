@@ -34,7 +34,6 @@ import {
 } from '@tanstack/match-sorter-utils'
 
 import IndeterminateCheckbox from './IndeterminateCheckbox'
-import Button from './Button'
 
 const fuzzyFilter = (row, columnId, value, addMeta) => {
   // Rank the item
@@ -157,14 +156,16 @@ const Table = ({ range, id, publication }) => {
             },
             {
               accessorKey: 'publications',
+              accessorFn: row => {
+                const pub = row.publications.find(pub => pub.id === '354757604067508307')
+                return (
+                  pub.qty
+                )          
+              },
               header: () => 'Quantity',
               enableColumnFilter: false,
-              cell: ({ row }) => {
-                const pub = row.original.publications.find(pub => pub.id === '354757604067508307')
-                  return (
-                    <span>{pub.qty}</span>
-                  )                  
-                }
+              cell: info => info.renderValue(),
+              footer: ({table}) => table.getFilteredRowModel().rows.reduce((total, row) => total + row.getValue('publications'), 0)
             },
           ],
     [publication]
@@ -306,6 +307,22 @@ const Table = ({ range, id, publication }) => {
             )
           })}
         </tbody>
+        <tfoot>
+          {table.getFooterGroups().map(footerGroup => (
+            <tr key={footerGroup.id}>
+              {footerGroup.headers.map(header => (
+                <th key={header.id}>
+                  {header.isPlaceholder
+                    ? null
+                    : flexRender(
+                        header.column.columnDef.footer,
+                        header.getContext()
+                      )}
+                </th>
+              ))}
+            </tr>
+          ))}
+        </tfoot>
       </table>
 
       <div className="pt-2 text-gray-900 font-small whitespace-nowrap dark:text-white">
