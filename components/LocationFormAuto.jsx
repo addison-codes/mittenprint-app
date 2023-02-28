@@ -36,9 +36,7 @@ export default function LocationFormAuto() {
 
   const { data, error, mutate } = useSWR(`/api/publications`, fetcher)
 
-
   const publications = data
-
 
   router.query.publication && assignedPubs.length === 0 ? (
     setAssignedPubs([
@@ -48,8 +46,6 @@ export default function LocationFormAuto() {
     },
     ...assignedPubs
   ]) ): ''
-
-
 
   const handleSelect = async (value, placeId, suggestion) => {
     const results = await geocodeByAddress(value)
