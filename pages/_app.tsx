@@ -10,7 +10,7 @@ function MyApp({ Component, pageProps }: AppProps) {
   return (
     <SessionProvider session={pageProps.session}>
       <Flowbite theme={{ theme }}>
-        <NavbarSidebarLayout>
+        <NavbarSidebarLayout isFooter >
           <Component {...pageProps} />
         </NavbarSidebarLayout>
       </Flowbite>

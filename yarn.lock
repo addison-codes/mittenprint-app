@@ -10,12 +10,12 @@
     "core-js-pure" "^3.20.2"
     "regenerator-runtime" "^0.13.4"
 
-"@babel/runtime@^7.10.2", "@babel/runtime@^7.16.3", "@babel/runtime@^7.18.9":
-  "integrity" "sha512-lkqXDcvlFT5rvEjiu6+QYO+1GXrEHRo2LOtS7E4GtX5ESIZOgepqsZBVIj6Pv+a6zqsya9VCgiK1KAK4BvJDAw=="
-  "resolved" "https://registry.npmjs.org/@babel/runtime/-/runtime-7.18.9.tgz"
-  "version" "7.18.9"
+"@babel/runtime@^7.10.2", "@babel/runtime@^7.18.9", "@babel/runtime@^7.20.13":
+  "integrity" "sha512-xwII0//EObnq89Ji5AKYQaRYiW/nZ3llSv29d49IuxPhKbtJoLP+9QUUZ4nVragQVtaVGeZrpB+ZtG/Pdy/POw=="
+  "resolved" "https://registry.npmjs.org/@babel/runtime/-/runtime-7.21.0.tgz"
+  "version" "7.21.0"
   dependencies:
-    "regenerator-runtime" "^0.13.4"
+    "regenerator-runtime" "^0.13.11"
 
 "@eslint/eslintrc@^1.2.2":
   "integrity" "sha512-UWW0TMTmk2d7hLcWD1/e2g5HDM/HQ3csaLSqXCfqwh4uNDuNqlaKWXmEsL4Cs41Z0KnILNvwbHAah3C2yt06kw=="
@@ -74,6 +74,11 @@
   "resolved" "https://registry.npmjs.org/@humanwhocodes/object-schema/-/object-schema-1.2.1.tgz"
   "version" "1.2.1"
 
+"@next-auth/fauna-adapter@^1.0.4":
+  "integrity" "sha512-pqZSirkZTwMlTalXn1lvqW0nKB9c3ozIelfgiLXhy1EK3EsgdXAPLfMSFuOnAj2otRXSChmgHuhNrqGiSv/dSg=="
+  "resolved" "https://registry.npmjs.org/@next-auth/fauna-adapter/-/fauna-adapter-1.0.4.tgz"
+  "version" "1.0.4"
+
 "@next/env@12.3.4":
   "integrity" "sha512-H/69Lc5Q02dq3o+dxxy5O/oNxFsZpdL6WREtOOtOM1B/weonIwDXkekr1KV5DPVPr12IHFPrMrcJQ6bgPMfn7A=="
   "resolved" "https://registry.npmjs.org/@next/env/-/env-12.3.4.tgz"
@@ -117,7 +122,7 @@
     "@nodelib/fs.scandir" "2.1.5"
     "fastq" "^1.6.0"
 
-"@panva/hkdf@^1.0.1":
+"@panva/hkdf@^1.0.2":
   "integrity" "sha512-MSAs9t3Go7GUkMhpKC44T58DJ5KGk2vBo+h1cqQeqlMfdGkxaVB78ZWpv9gYi/g2fa4sopag9gJsNvS8XGgWJA=="
   "resolved" "https://registry.npmjs.org/@panva/hkdf/-/hkdf-1.0.2.tgz"
   "version" "1.0.2"
@@ -994,10 +999,10 @@
   dependencies:
     "reusify" "^1.0.4"
 
-"faunadb@^4.7.0":
-  "integrity" "sha512-bX5c2n+lEOrdu1PbkSFpDUdE/PLQ2x6jZptY4fAwOF9hCw6DIvmfk1ZjLipWUswOvydvlku2/7O3imqXa557iw=="
-  "resolved" "https://registry.npmjs.org/faunadb/-/faunadb-4.7.0.tgz"
-  "version" "4.7.0"
+"faunadb@^4.3.0", "faunadb@^4.8.0":
+  "integrity" "sha512-pjl5WUYQ8GqM4ESk3mv0RXfxtQMHWb92XWkxjf3nWiAkf2HVtsENfTbyGPunzw4zDbdhn9aQSSxbwahaLLDR7Q=="
+  "resolved" "https://registry.npmjs.org/faunadb/-/faunadb-4.8.0.tgz"
+  "version" "4.8.0"
   dependencies:
     "base64-js" "^1.2.0"
     "boxen" "^5.0.1"
@@ -1385,7 +1390,7 @@
   "resolved" "https://registry.npmjs.org/isexe/-/isexe-2.0.0.tgz"
   "version" "2.0.0"
 
-"jose@^4.10.0", "jose@^4.9.3":
+"jose@^4.10.0", "jose@^4.11.4":
   "integrity" "sha512-94FdcR8felat4vaTJyL/WVdtlWLlsnLMZP8v+A0Vru18K3bQ22vn7TtpVh3JlgBFNIlYOUlGqwp/MjRPOnIyCQ=="
   "resolved" "https://registry.npmjs.org/jose/-/jose-4.11.4.tgz"
   "version" "4.11.4"
@@ -1534,17 +1539,17 @@
   "resolved" "https://registry.npmjs.org/natural-compare/-/natural-compare-1.4.0.tgz"
   "version" "1.4.0"
 
-"next-auth@^4.19.2":
-  "integrity" "sha512-6V2YG3IJQVhgCAH7mvT3yopTW92gMdUrcwGX7NQ0dCreT/+axGua/JmVdarjec0C/oJukKpIYRgjMlV+L5ZQOQ=="
-  "resolved" "https://registry.npmjs.org/next-auth/-/next-auth-4.19.2.tgz"
-  "version" "4.19.2"
+"next-auth@^4", "next-auth@^4.20.0":
+  "integrity" "sha512-Ff8Otk76rkZd230GVlf6oyj6K6Hz3Y8A0xr3AmRX1bOPagUWhlb2TBtgmktQlHrPI6QoINfPiAgsAOKTax1z3A=="
+  "resolved" "https://registry.npmjs.org/next-auth/-/next-auth-4.20.0.tgz"
+  "version" "4.20.0"
   dependencies:
-    "@babel/runtime" "^7.16.3"
-    "@panva/hkdf" "^1.0.1"
+    "@babel/runtime" "^7.20.13"
+    "@panva/hkdf" "^1.0.2"
     "cookie" "^0.5.0"
-    "jose" "^4.9.3"
+    "jose" "^4.11.4"
     "oauth" "^0.9.15"
-    "openid-client" "^5.1.0"
+    "openid-client" "^5.4.0"
     "preact" "^10.6.3"
     "preact-render-to-string" "^5.1.19"
     "uuid" "^8.3.2"
@@ -1689,7 +1694,7 @@
   dependencies:
     "wrappy" "1"
 
-"openid-client@^5.1.0":
+"openid-client@^5.4.0":
   "integrity" "sha512-hgJa2aQKcM2hn3eyVtN12tEA45ECjTJPXCgUh5YzTzy9qwapCvmDTVPWOcWVL0d34zeQoQ/hbG9lJhl3AYxJlQ=="
   "resolved" "https://registry.npmjs.org/openid-client/-/openid-client-5.4.0.tgz"
   "version" "5.4.0"
@@ -1951,10 +1956,10 @@
   dependencies:
     "picomatch" "^2.2.1"
 
-"regenerator-runtime@^0.13.4":
-  "integrity" "sha512-p3VT+cOEgxFsRRA9X4lkI1E+k2/CtnKtU4gcxyaCUreilL/vqI6CdZ3wxVUx3UOUg+gnUOQQcRI7BmSI656MYA=="
-  "resolved" "https://registry.npmjs.org/regenerator-runtime/-/regenerator-runtime-0.13.9.tgz"
-  "version" "0.13.9"
+"regenerator-runtime@^0.13.11", "regenerator-runtime@^0.13.4":
+  "integrity" "sha512-kY1AZVr2Ra+t+piVaJ4gxaFaReZVH40AKNo7UCX6W+dEwBo/2oZJzqfuN1qLq1oL45o56cPaTXELwrTh8Fpggg=="
+  "resolved" "https://registry.npmjs.org/regenerator-runtime/-/regenerator-runtime-0.13.11.tgz"
+  "version" "0.13.11"
 
 "regexp.prototype.flags@^1.4.1", "regexp.prototype.flags@^1.4.3":
   "integrity" "sha512-fjggEOO3slI6Wvgjwflkc4NFRCTZAu5CnNfBd5qOMYhWdn67nJBBu34/TkD++eeFmd8C9r9jfXJ27+nSiRkSUA=="
