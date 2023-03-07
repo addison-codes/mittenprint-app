@@ -13,7 +13,7 @@ const Location = () => {
 
   const { data, error, mutate } = useSWR(`/api/locations/${id}`, fetcher)
 
-  if (!data) {
+  if (!data?.data) {
     return <div>Loading</div>
   } else {
     data.data.id = data.id
@@ -27,10 +27,10 @@ const Location = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className="mx-auto mt-10">
+      <div className="max-w-lg p-8 mx-auto my-8 bg-white border-b shadow-md sm:rounded-lg dark:bg-gray-800/95 dark:border-gray-700">
         <Title text={data?.data?.locationName} />
         <LocationForm location={data?.data} />
-      </main>
+      </div>
 
       <footer></footer>
     </div>

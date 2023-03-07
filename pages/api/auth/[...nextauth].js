@@ -1,8 +1,17 @@
 import NextAuth from 'next-auth'
 // import GithubProvider from 'next-auth/providers/github'
 // import GoogleProvider from 'next-auth/providers/google'
-import CredentialsProvider from "next-auth/providers/credentials";
-import { userService } from "services/UserService";
+import CredentialsProvider from "next-auth/providers/credentials"
+import { userService } from "services/UserService"
+import { Client as FaunaClient } from "faunadb"
+import { FaunaAdapter } from "@next-auth/fauna-adapter"
+
+const client = new FaunaClient({
+  secret: 'fnAE9b7xZ6AAQxtpTkikk1kh5wtuIiRw8BcbfBG5',
+  scheme: "http",
+  domain: "localhost",
+  port: 8443,
+})
 
 export const authOptions = {
   // Configure one or more authentication providers
@@ -32,8 +41,12 @@ export const authOptions = {
     }),
     // ...add more providers here
   ],
+  adapter: FaunaAdapter(client),
   pages: {
     signIn: '/signin'
+  },
+  session: {
+    strategy: 'jwt'
   },
   callbacks: {
     async jwt({ token, user }) {

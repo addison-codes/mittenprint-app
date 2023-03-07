@@ -20,7 +20,7 @@ const Home = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className="px-4 pt-6 mx-auto">
+      <div>
       {(session?.user.role === undefined) ? (
           <Title text={'You must be signed in to access this data'} />
         ) : (() => {
@@ -49,7 +49,7 @@ const Home = () => {
             )
           }
         })()}
-      </main>
+      </div>
     </div>
   )
 }

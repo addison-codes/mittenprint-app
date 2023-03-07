@@ -25,11 +25,11 @@ const Publication = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className="container mx-auto mt-10">
+      <div>
         <Title text={data?.data?.publicationName} />
         <Button label="Add Location" link={`/new-location?publication=${id}`} />
         <Table id={id} />
-      </main>
+      </div>
 
       <footer></footer>
     </div>

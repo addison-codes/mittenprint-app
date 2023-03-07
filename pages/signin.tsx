@@ -30,22 +30,6 @@ const SignInPage = () => {
   return (
     <section className="bg-gray-50 dark:bg-gray-900">
     <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
-    <Link className="mb-8" href="/">
-              <a className="flex items-center">
-                <div className="h-6 mr-3 sm-h-8">
-              <Image
-              width={32}
-              height={32}
-                alt=""
-                src="/MPDLogo.png"
-                className="h-6 mr-3 sm:h-8"
-              />
-              </div>
-              <span className="self-center font-mono text-2xl font-semibold text-gray-700 whitespace-nowrap dark:text-white">
-                Mitten Print Distribution
-              </span>
-              </a>
-            </Link>
         {!!error && <p className="text-error">ERROR: {error}</p>}
         <div className="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
             <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
