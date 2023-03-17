@@ -10,13 +10,9 @@ import {
   HiClipboard,
   HiCog,
   HiCollection,
-  HiInboxIn,
   HiInformationCircle,
-  HiLockClosed,
   HiSearch,
-  HiShoppingBag,
-  HiUsers,
-  HiViewGrid,
+
   HiMap
 } from "react-icons/hi";
 
@@ -72,20 +68,42 @@ const ExampleSidebar: FC = function () {
                   Dashboard
                 </Sidebar.Item>
                 <Sidebar.Item
-                  href="/request"
+                  href="/route-selection"
                   icon={HiMap}
                   className={
-                    "/kanban" === currentPage
+                    "/route-selection" === currentPage
                       ? "bg-gray-100 dark:bg-gray-700"
                       : ""
                   }
                 >
-                  Routes
+                  Route Creator
+                </Sidebar.Item>
+                <Sidebar.Item
+                  href="/request"
+                  icon={HiAdjustments}
+                  className={
+                    "/request" === currentPage
+                      ? "bg-gray-100 dark:bg-gray-700"
+                      : ""
+                  }
+                >
+                  Request
+                </Sidebar.Item>
+                <Sidebar.Item
+                  href="/converter"
+                  icon={HiChartSquareBar}
+                  className={
+                    "/converter" === currentPage
+                      ? "bg-gray-100 dark:bg-gray-700"
+                      : ""
+                  }
+                >
+                  Converter
                 </Sidebar.Item>
               </Sidebar.ItemGroup>
               <Sidebar.ItemGroup>
                 <Sidebar.Item
-                  href="https://github.com/themesberg/flowbite-react/"
+                  href="https://github.com/addison-codes/mittenprint-app"
                   icon={HiClipboard}
                 >
                   Docs
@@ -97,7 +115,7 @@ const ExampleSidebar: FC = function () {
                   Components
                 </Sidebar.Item>
                 <Sidebar.Item
-                  href="https://github.com/themesberg/flowbite-react/issues"
+                  href="mailto:hi@addison.codes"
                   icon={HiInformationCircle}
                 >
                   Help

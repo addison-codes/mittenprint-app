@@ -12,20 +12,6 @@ const { data, error, mutate } = useSWR(`/api/publications`, fetcher)
 
 const publications = data
 
-const handleCheck = async (e) => {
-  e.target.checked
-    ? !assignedPublications
-      ? (assignedPublications = [{ id: e.target.id, qty: 25 }])
-      : assignedPublications.push({
-          id: e.target.id,
-          qty: 25,
-        })
-    : assignedPublications.splice(
-        assignedPublications.findIndex((a) => a.id === e.target.id),
-        1
-      )
-}
-
 
   return (
     <div>
@@ -36,8 +22,8 @@ const handleCheck = async (e) => {
 
       <section className="container mx-auto mt-6">
         <h1 className="mb-4 text-2xl text-red-800">Create a Route</h1>
-        <RouteTable />
-        {/* <Request /> */}
+        {/* <RouteTable /> */}
+        <Request />
         {/* <Converter /> */}
       </section>
     </div>

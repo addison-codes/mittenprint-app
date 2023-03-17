@@ -34,7 +34,6 @@ import {
 } from '@tanstack/match-sorter-utils'
 
 import IndeterminateCheckbox from './IndeterminateCheckbox'
-import Button from './Button'
 
 const fuzzyFilter = (row, columnId, value, addMeta) => {
   // Rank the item
@@ -65,7 +64,7 @@ const fuzzySort = (rowA, rowB, columnId) => {
 }
 
 
-const Table = ({ range, id, publication }) => {
+const Table = ({ range, id, publication, publicationId }) => {
   const [sorting, setSorting] = useState([])
   const [queryParams, setQueryParams] = useState('')
   const [rowSelection, setRowSelection] = useState({})
@@ -81,14 +80,16 @@ const Table = ({ range, id, publication }) => {
   const fetcher = (url, queryParams = '?limit=100') =>
     fetch(`${url}${queryParams}`).then((res) => res.json())
   const { data, error, mutate } = useSWR(
+    publicationId ? (
+      [
+        `api/publications/locations/${publicationId}`,
+        queryParams,
+      ]    ) : (
     [
-      publication
-        ? '/api/publications'
-        : id
-        ? `/api/publications/locations/${id}`
-        : '/api/locations',
+      'api/publications/locations/358571074413133911',
       queryParams,
-    ],
+    ]
+    ),
     fetcher
   )
 
@@ -98,10 +99,10 @@ const Table = ({ range, id, publication }) => {
     }
   }, [range])
 
+
   const columns = useMemo(
     () =>
-      publication
-        ? [
+      [
             {
               id: 'select',
               header: ({ table }) => (
@@ -143,51 +144,6 @@ const Table = ({ range, id, publication }) => {
                     : row.original.locationName}
                 </Link>
               ),
-            },
-          ]
-        : [
-            {
-              id: 'select',
-              header: ({ table }) => (
-                <IndeterminateCheckbox
-                  {...{
-                    checked: table.getIsAllRowsSelected(),
-                    indeterminate: table.getIsSomeRowsSelected(),
-                    onChange: table.getToggleAllRowsSelectedHandler(),
-                  }}
-                />
-              ),
-              cell: ({ row }) => (
-                <IndeterminateCheckbox
-                  {...{
-                    checked: row.getIsSelected(),
-                    disabled: !row.getCanSelect(),
-                    indeterminate: row.getIsSomeSelected(),
-                    onChange: row.getToggleSelectedHandler(),
-                  }}
-                />
-              ),
-            },
-            {
-              accessorKey: `${
-                publication ? 'publicationName' : 'locationName'
-              }`,
-              header: () => 'Name',
-              // cell: (info) => info.renderValue(),
-              cell: ({ row }) => (
-                <Link
-                  href={`${
-                    publication
-                      ? `/publications/${row.original.id}`
-                      : `/locations/${row.original.id}`
-                  }`}
-                >
-                  {publication
-                    ? row.original.publicationName
-                    : row.original.locationName}
-                </Link>
-              ),
-              enableColumnFilter: false,
             },
             {
               accessorKey: 'address',
@@ -207,21 +163,16 @@ const Table = ({ range, id, publication }) => {
             },
             {
               accessorKey: 'publications',
-              header: () => 'Publications',
-              cell: ({ row }) => {
-                return row.original.publications.map((e) => {
-                  const list = ''
-                  list += IdToName(e.id) + ' '
-                  return (
-                    <span
-                      key={list}
-                      className="bg-blue-100 text-blue-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-blue-400 border border-blue-400"
-                    >
-                      {list}
-                    </span>
-                  )
-                })
+              accessorFn: row => {
+                const pub = row.publications.find(pub => pub.id === '354757604067508307')
+                return (
+                  pub?.qty
+                )          
               },
+              header: () => 'Quantity',
+              // enableColumnFilter: false,
+              cell: info => info.renderValue(),
+              footer: ({table}) => table.getFilteredRowModel().rows.reduce((total, row) => total + row.getValue('publications'), 0)
             },
           ],
     [publication]
@@ -251,7 +202,9 @@ const Table = ({ range, id, publication }) => {
     getFacetedUniqueValues: getFacetedUniqueValues(),
     getPreFilteredRowModel: getPreFilteredRowModel,
     debugTable: true,
+    autoResetPageIndex: false
   })
+  // TODO: Implement manual pagination
 
   useEffect(() => {
     if (table.getState().columnFilters[0]?.id === 'locationName') {
@@ -363,6 +316,22 @@ const Table = ({ range, id, publication }) => {
             )
           })}
         </tbody>
+        <tfoot className='font-semibold text-gray-900 dark:text-white'>
+          {table.getFooterGroups().map(footerGroup => (
+            <tr key={footerGroup.id}>
+              {footerGroup.headers.map(header => (
+                <th key={header.id}>
+                  {header.isPlaceholder
+                    ? null
+                    : flexRender(
+                        header.column.columnDef.footer,
+                        header.getContext()
+                      )}
+                </th>
+              ))}
+            </tr>
+          ))}
+        </tfoot>
       </table>
 
       <div className="pt-2 text-gray-900 font-small whitespace-nowrap dark:text-white">
@@ -406,13 +375,15 @@ const Table = ({ range, id, publication }) => {
             {table.getPageCount()}
           </strong>
         </span>
+  {console.log(table.getState().pagination.pageIndex)}
+
         <Select
           value={table.getState().pagination.pageSize}
           onChange={(e) => {
             table.setPageSize(Number(e.target.value))
           }}
         >
-          {[30, 50, 100, 200].map((pageSize) => (
+          {[30, 50, 100, 200, table.getPreFilteredRowModel().rows.length].map((pageSize) => (
             <option
               key={pageSize}
               value={pageSize}
@@ -423,10 +394,23 @@ const Table = ({ range, id, publication }) => {
           ))}
         </Select>
       </div>
+      <button
+        type="button"
+        className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
+        onClick={() => {
+          const selected = table.getSelectedRowModel().flatRows
+          console.log(selected)
+          selected.map((selection) => {
+            // console.log(selection)
+          })
+        }}
+      >
+        Log Selected
+      </button>
+
     </div>
   )
 }
-
 const DefaultFilter = ({ column, table}) => {
   const firstValue = table
     .getPreFilteredRowModel()
@@ -480,13 +464,7 @@ const DefaultFilter = ({ column, table}) => {
       </div>
       <div className="h-1" />
     </div>
-  ) : typeof firstValue === 'object' ? (
-    <div>
-    <div className="flex space-x-2">
-<SelectColumnFilter column={column} table={table} />
-</div>
-</div>
-    ) : (
+  )  : (
     <>
       <datalist id={column.id + 'list'}>
         {sortedUniqueValues.slice(0, 5000).map((value) => (
@@ -502,6 +480,8 @@ const DefaultFilter = ({ column, table}) => {
         list={column.id + 'list'}
       />
       <div className="h-1" />
+
+
     </>
   )
 }
