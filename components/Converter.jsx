@@ -1,14 +1,16 @@
-import React from 'react'
+import React, { useState } from 'react'
 import useSWR from 'swr'
 // Get locations list from our temp directory (placed here manually after running routing query)
 // import tempData from '../temp/tempLocs'
 
 import { Button } from 'flowbite-react'
+import Uploader from './Uploader'
 
 const XLSX = require('xlsx')
 
 
 const Converter = () => {
+  const [files, setFiles] = useState("");
   const fetcher = (url, queryParams = '') =>
     fetch(`${url}${queryParams}`).then((res) => res.json())
   const { data, error, mutate } = useSWR(
@@ -16,14 +18,29 @@ const Converter = () => {
     fetcher
   )
 
+  const handleChange = e => {
+    const fileReader = new FileReader();
+    fileReader.readAsText(e.target.files[0], "UTF-8");
+    fileReader.onload = e => {
+      console.log("e.target.result", e.target.result);
+      setFiles(e.target.result);
+    };
+  };
+
   // TODO: Remove need for temp data
 
   // Commented out code for deployment to work - should return a blank xlsx file
 
 // console.log(tempData)
-  const locations = tempData[0]?.stops
+const locations = files[0]?.stops
+
+console.log(files)
+  // const locations = tempData[0]?.stops
 
   // const array = [routeData]
+
+  if (locations) {
+
 
   const routeData = {}
   // console.log(locations)
@@ -47,7 +64,7 @@ const Converter = () => {
   formattedTime = parts.map(s => String(s).padStart(2,'0')).join(':');
 
   routeData.travelTime = formattedTime
-  console.log(routeData)
+  // console.log(routeData)
 
   const changeData = locations.map( (location) => {
     // console.log('pre', location.odometer)
@@ -78,15 +95,18 @@ const Converter = () => {
   })
 
   mutatedData.push(routeData)
-
-  const getSheet = () => {
+}
+const getSheet = () => {
     let ws = XLSX.utils.json_to_sheet(mutatedData)
     let wb = XLSX.utils.book_new()
   
     XLSX.utils.book_append_sheet(wb, ws, 'Route Order')
     XLSX.writeFile(wb, 'sequence.xlsx')
   }
+
   return <div>
+  <Uploader handleChange={handleChange} />
+
     <Button onClick={getSheet}>Get Sheet</Button>
   </div>
 }
