@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import useSWR from 'swr'
+import Button from './Button'
+
+// import tempData from "../temp/tempRoute.json"
 
 const Request = () => {
   const [queryParams, setQueryParams] = useState('')
@@ -7,7 +10,8 @@ const Request = () => {
   const fetcher = (url, queryParams = '?limit=600') =>
     fetch(`${url}${queryParams}`).then((res) => res.json())
   const { data, error, mutate } = useSWR(
-    ['/api/publications/locations/359102399771574358', queryParams],
+    // ['/api/publications/locations/359102399771574358', queryParams],
+    ['/tempRoute.json', queryParams],
     fetcher
   )
 
@@ -19,19 +23,40 @@ const Request = () => {
 
   const services = []
 
-  // console.log(data)
+  console.log(data)
+
+  // data?.forEach(location => {
+  //   locations.push({
+  //     "name": location.locationName + '||' + location.id,
+  //     "coordinates": [
+  //       Number(location.coordinates.lng), Number(location.coordinates.lat)
+  //     ]
+  //   })
+  //   services.push({
+  //     "name": location.placeId,
+  //     "location": location.locationName + '||' + location.id
+  //   })
+  // })
 
   data?.forEach(location => {
     locations.push({
-      "name": location.locationName + '||' + location.id,
+      "name": location.original.locationName + '||' + location.original.id,
       "coordinates": [
-        Number(location.coordinates.lng), Number(location.coordinates.lat)
+        Number(location.original.coordinates.lng), Number(location.original.coordinates.lat)
       ]
     })
     services.push({
-      "name": location.placeId,
-      "location": location.locationName + '||' + location.id
+      "name": location.original.placeId,
+      "location": location.original.locationName + '||' + location.original.id
     })
+  })
+
+  locations.push({
+    "name": "Home",
+    "coordinates": [
+      -82.9277949,
+      42.5545696
+    ]
   })
 
   console.log('loc', locations)
@@ -61,7 +86,14 @@ const Request = () => {
 
   // const fullUrl = baseUrl + locsUrl + endUrl
 
-  return <div>test</div>
+  return (
+    <div>
+      {locations.map(location => {
+        return <p key={location.name}>{location.name}</p>
+      })}
+      {/* <Button label="Submit" /> */}
+    </div>
+  )
 }
 
 export default Request
