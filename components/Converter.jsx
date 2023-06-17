@@ -1,7 +1,7 @@
 import React from 'react'
 import useSWR from 'swr'
 // Get locations list from our temp directory (placed here manually after running routing query)
-import tempData from '../temp/tempLocs'
+// import tempData from '../temp/tempLocs'
 
 import { Button } from 'flowbite-react'
 
