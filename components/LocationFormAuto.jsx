@@ -27,6 +27,7 @@ export default function LocationFormAuto() {
   })
   const [zip, setZip] = useState('')
   const [city, setCity] = useState('')
+  const [county, setCounty] = useState('')
   const [name, setName] = useState('')
   const [placeId, setPlaceId] = useState([])
   const [assignedPubs, setAssignedPubs] = useState([]) 
@@ -34,9 +35,8 @@ export default function LocationFormAuto() {
   const fetcher = (url, queryParams = '?limit=100') =>
     fetch(`${url}${queryParams}`).then((res) => res.json())
 
-  const { data, error, mutate } = useSWR(`/api/publications`, fetcher)
-
-  const publications = data
+  const { data: publications, error, mutate } = useSWR(`/api/publications`, fetcher)
+  const { data: locations } = useSWR(`/api/locations`, fetcher)
 
   router.query.publication && assignedPubs.length === 0 ? (
     setAssignedPubs([
@@ -51,16 +51,17 @@ export default function LocationFormAuto() {
     const results = await geocodeByAddress(value)
     const latLng = await getLatLng(results[0])
     const [place] = await geocodeByPlaceId(placeId)
+    console.log(place)
     const name = suggestion?.formattedSuggestion?.mainText
     const { long_name: postalCode = '' } =
-      place.address_components.find((c) => c.types.includes('postal_code')) ||
-      {}
+      place.address_components.find((c) => c.types.includes('postal_code')) || {}
     // TODO: Find difference between 'locality' and 'political'
     const { short_name: city = '' } =
       place.address_components.find((c) => c.types.includes('locality')) || {}
+    const { short_name: county = '' } =
+      place.address_components.find((c) => c.types.includes('administrative_area_level_2')) || {}
     const { short_name: streetNumber = '' } =
-      place.address_components.find((c) => c.types.includes('street_number')) ||
-      {}
+      place.address_components.find((c) => c.types.includes('street_number')) || {}
     const { short_name: street = '' } =
       place.address_components.find((c) => c.types.includes('route')) || {}
     const address = streetNumber + ' ' + street
@@ -68,7 +69,8 @@ export default function LocationFormAuto() {
     setAddress(address)
     setZip(postalCode)
     setCoordinates(latLng)
-    setCity(city) 
+    setCity(city)
+    setCounty(county)
     setLocation(value)
     setPlaceId(placeId)
   }
@@ -91,25 +93,32 @@ export default function LocationFormAuto() {
     // const { locationName, address, city, zip, coordinates, placeId } = data
     const publications = assignedPubs
     const locationName = name
-    try {
-      await fetch('api/createLocation', {
-        method: 'POST',
-        body: JSON.stringify({
-          locationName,
-          address,
-          city,
-          zip,
-          coordinates,
-          placeId,
-          publications,
-        }),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
-      router.reload()
-    } catch (err) {
-      console.error(err)
+
+    const match = locations.some(el => el.placeId === placeId)
+    if (!match) {
+      try {
+        await fetch('api/createLocation', {
+          method: 'POST',
+          body: JSON.stringify({
+            locationName,
+            address,
+            city,
+            county,
+            zip,
+            coordinates,
+            placeId,
+            publications,
+          }),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        })
+        router.reload()
+      } catch (err) {
+        console.error(err)
+      }
+    } else {
+      console.error('Already exists')
     }
   }
 
@@ -215,6 +224,19 @@ export default function LocationFormAuto() {
           />
           {errors.city && (
             <p className="font-bold text-red-900">{errors.city?.message}</p>
+          )}
+        </div>
+        <div className="mb-4">
+          <label className="block mb-1 text-sm font-bold text-red-800">
+            County
+          </label>
+          <input
+            type="text"
+            className="w-full px-3 py-2 text-gray-700 bg-white border rounded outline-none"
+            defaultValue={county ?? 'Waiting'}
+          />
+          {errors.county && (
+            <p className="font-bold text-red-900">{errors.county?.message}</p>
           )}
         </div>
         {/* <div className="mb-4">

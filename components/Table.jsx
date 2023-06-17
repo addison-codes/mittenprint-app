@@ -332,7 +332,7 @@ const Table = ({ range, id, publication }) => {
             table.setPageSize(Number(e.target.value))
           }}
         >
-          {[30, 50, 100, 200].map((pageSize) => (
+          {[30, 50, 100, 200, 500].map((pageSize) => (
             <option
               key={pageSize}
               value={pageSize}
