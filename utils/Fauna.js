@@ -76,12 +76,13 @@ const createLocation = async (
   address,
   city,
   state,
-  county,
   zip,
   placeId,
   coordinates,
-  publications
+  publications,
+  county
 ) => {
+  console.log(county)
   return await faunaClient.query(
     q.Create(q.Collection('locations'), {
       data: {
@@ -89,12 +90,12 @@ const createLocation = async (
         address,
         city,
         state: 'MI',
-        county,
         zip,
         placeId,
         coordinates,
         active: true,
         publications,
+        county
       },
     })
   )

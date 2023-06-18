@@ -1,0 +1,49 @@
+type Mutation {
+  createLocation(data: LocationInput!): Location!
+  updateLocation(id: ID!, data: LocationInput!): Location
+  deleteLocation(id: ID!): Location
+  partialUpdateLocation(id: ID!, data: PartialUpdateLocationInput!): Location
+}
+
+input LocationInput {
+  locationName: String!
+  address: String!
+  city: String!
+  state: String!
+  county: String
+  zip: Int!
+  active: Boolean!
+}
+
+input PartialUpdateLocationInput {
+  locationName: String
+  address: String
+  city: String
+  state: String
+  county: String
+  zip: Int
+  active: Boolean
+}
+
+type Location {
+  city: String!
+  zip: Int!
+  state: String!
+  county: String
+  _id: ID!
+  address: String!
+  locationName: String!
+  active: Boolean!
+  _ts: Long!
+}
+
+type LocationPage {
+  data: [Location]!
+  after: String
+  before: String
+}
+
+type Query {
+  findLocationByID(id: ID!): Location
+  allLocations(_size: Int, _cursor: String): LocationPage!
+}
