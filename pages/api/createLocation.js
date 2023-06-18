@@ -14,6 +14,7 @@ export default async function handler(req, res) {
     placeId,
     coordinates,
     publications,
+    county
   } = req.body
   if (session.user.role === 'admin') {
     if (req.method !== 'POST') {
@@ -28,7 +29,8 @@ export default async function handler(req, res) {
         zip,
         placeId,
         coordinates,
-        publications
+        publications,
+        county
       )
       return res.status(200).json(createdLocation)
     } catch (err) {

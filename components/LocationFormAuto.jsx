@@ -96,6 +96,7 @@ export default function LocationFormAuto() {
 
     const match = locations.some(el => el.placeId === placeId)
     if (!match) {
+      console.log(county)
       try {
         await fetch('api/createLocation', {
           method: 'POST',
@@ -103,11 +104,11 @@ export default function LocationFormAuto() {
             locationName,
             address,
             city,
-            county,
             zip,
             coordinates,
             placeId,
             publications,
+            county,
           }),
           headers: {
             'Content-Type': 'application/json',
