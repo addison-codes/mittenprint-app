@@ -38,29 +38,32 @@ const Request = () => {
   //   })
   // })
 
-  data?.forEach(location => {
+  data?.forEach((location) => {
     locations.push({
-      "name": location.original.locationName + '||' + location.original.id,
-      "coordinates": [
-        Number(location.original.coordinates.lng), Number(location.original.coordinates.lat)
+      name: location.original.locationName + '||' + location.original.id,
+      coordinates: [
+        Number(location.original.coordinates.lng),
+        Number(location.original.coordinates.lat)
       ]
     })
     services.push({
-      "name": location.original.placeId,
-      "location": location.original.locationName + '||' + location.original.id
+      name: location.original.placeId,
+      location: location.original.locationName + '||' + location.original.id,
+      duration: 300
     })
   })
 
   locations.push({
-    "name": "Home",
-    "coordinates": [
-      -82.9277949,
-      42.5545696
-    ]
+    name: 'Home',
+    coordinates: [-85.7067557, 42.9991513]
   })
 
-  console.log('loc', locations)
-  console.log('srv', services)
+  // Remove duplicates
+  const locDup = [...new Map(locations.map((v) => [v.name, v])).values()]
+  const srvDup = [...new Map(services.map((v) => [v.name, v])).values()]
+
+  console.log('loc', locDup)
+  console.log('srv', srvDup)
 
   // const locs = data?.map((loc, index) => {
   //   return (
@@ -88,7 +91,7 @@ const Request = () => {
 
   return (
     <div>
-      {locations.map(location => {
+      {locations.map((location) => {
         return <p key={location.name}>{location.name}</p>
       })}
       {/* <Button label="Submit" /> */}

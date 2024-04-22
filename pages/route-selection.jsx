@@ -3,21 +3,21 @@ import useSWR from 'swr'
 import RouteTable from '../components/RouteTable'
 import { useState } from 'react';
 import Title from '../components/Title'
-
+import { useSession, signIn, signOut } from 'next-auth/react'
 
 export default function Home() {
   const [publication, setPublication] = useState()
   const fetcher = (url, queryParams = '?limit=100') =>
-  fetch(`${url}${queryParams}`).then((res) => res.json())
+    fetch(`${url}${queryParams}`).then((res) => res.json())
 
-const { data, error, mutate } = useSWR(`/api/publications`, fetcher)
+  const { data, error, mutate } = useSWR(`/api/publications`, fetcher)
 
-const publications = data
+  const publications = data
+  const { data: session } = useSession()
 
-const handleChange = e => {
-  setPublication(e.target.value)
-}
-
+  const handleChange = (e) => {
+    setPublication(e.target.value)
+  }
 
   return (
     <div>

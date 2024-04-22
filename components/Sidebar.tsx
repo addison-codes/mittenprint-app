@@ -12,7 +12,6 @@ import {
   HiCollection,
   HiInformationCircle,
   HiSearch,
-
   HiMap
 } from "react-icons/hi";
 
